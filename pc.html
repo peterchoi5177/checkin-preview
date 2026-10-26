@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1280">
+<title>숙소 운영앱 · PC 체크인 v3 (1안 포레스트 · 1280)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{
+  --font:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --bg:#F6F5F1; --surface:#FFFFFF; --surface-2:#FAF9F6; --surface-3:#EEECE6; --line:#E4E1D9; --line-2:#EFEDE7;
+  --ink:#17201B; --ink-2:#545E57; --ink-3:#646B66; --ink-4:#A9AEA9;
+  --brand:#1F5A36; --brand-press:#184A2C; --brand-soft:#E4EFE7; --brand-ink:#1F5A36; --on-brand:#FFFFFF;
+  --ok:#2E8549; --ok-soft:#E3F1E7; --ok-ink:#22673A;
+  --warn:#A8650B; --warn-soft:#FCF1DE; --warn-ink:#8F4E07; --warn-line:#EBC17E;
+  --bad:#C2402F; --bad-soft:#FBE9E6; --bad-ink:#A3301F;
+  --info:#2A5DB0; --info-soft:#E7EEF9; --info-ink:#244F96;
+  --r-sm:11px; --r-md:14px; --r-lg:18px; --sh-1:0 1px 2px rgb(23 32 27/.05); --sh-3:0 16px 40px rgb(23 32 27/.18);
+  --ease:cubic-bezier(.2,.8,.2,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--bg);color:var(--ink);font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased;letter-spacing:-.01em;min-width:1280px}
+button,input,textarea{font:inherit;color:inherit;letter-spacing:inherit}
+button{background:none;border:0;cursor:pointer;text-align:inherit}
+input,textarea{outline:none}
+svg.i{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.n{font-variant-numeric:tabular-nums}
+[hidden]{display:none!important}
+:focus-visible{outline:2px solid var(--brand);outline-offset:2px;border-radius:8px}
+.w{width:1280px;margin:0 auto;padding:0 24px}
+
+/* 위쪽 */
+.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.bar{height:64px;display:flex;align-items:center;gap:4px}
+.logo{display:flex;align-items:center;gap:9px;font-size:17px;font-weight:800;letter-spacing:-.03em;margin-right:16px;white-space:nowrap}
+.logo .m{width:32px;height:32px;border-radius:10px;background:var(--brand);color:var(--on-brand);display:grid;place-items:center}
+.logo .m svg{width:18px;height:18px}
+.nav{display:flex;gap:2px}
+.nav button{height:40px;padding:0 13px;border-radius:12px;font-size:14.5px;font-weight:650;color:var(--ink-2);display:inline-flex;align-items:center;gap:5px;white-space:nowrap;position:relative}
+.nav button:hover{background:var(--surface-3);color:var(--ink)}
+.nav button[aria-current="page"]{background:var(--brand-soft);color:var(--brand-ink)}
+.nav button svg{width:15px;height:15px;color:var(--ink-3)}
+.nav .sep{width:1px;height:20px;background:var(--line);align-self:center;margin:0 6px}
+.nav .bd{min-width:18px;height:18px;border-radius:9px;background:var(--warn);color:#fff;font-size:11px;font-weight:800;display:inline-grid;place-items:center;padding:0 5px}
+.sp{flex:1}
+.tb{height:40px;padding:0 11px;border-radius:12px;display:inline-flex;align-items:center;gap:6px;font-size:13.5px;font-weight:650;color:var(--ink-2);white-space:nowrap}
+.tb:hover{background:var(--surface-3)}
+.tb .c{min-width:19px;height:19px;border-radius:10px;background:var(--bad);color:#fff;font-size:11px;font-weight:800;display:grid;place-items:center;padding:0 5px}
+.tb .c.i{background:var(--info)}
+.av{width:34px;height:34px;border-radius:50%;background:var(--brand-soft);color:var(--brand-ink);display:grid;place-items:center;font-weight:800;font-size:13.5px}
+.dd{position:relative}
+.menu{position:absolute;top:calc(100% + 6px);left:0;min-width:220px;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--sh-3);padding:6px;z-index:30}
+.menu button{display:flex;align-items:center;gap:10px;width:100%;height:42px;padding:0 10px;border-radius:9px;font-weight:650;font-size:14px;white-space:nowrap}
+.menu button:hover{background:var(--surface-2)}
+.menu button svg{color:var(--ink-3)}
+.menu small{margin-left:auto;font-size:12px;color:var(--ink-3)}
+.menu .cnt{margin-left:auto;height:20px;padding:0 7px;border-radius:10px;background:var(--warn);color:#fff;font-size:11.5px;font-weight:800;display:inline-flex;align-items:center}
+
+/* 사업장 줄 */
+.brs{display:flex;align-items:center;gap:8px;height:60px}
+.brs .lb{font-size:12.5px;font-weight:700;color:var(--ink-3);margin-right:4px}
+.bp{height:42px;padding:0 14px;border-radius:13px;background:var(--surface);border:1px solid var(--line);display:inline-flex;align-items:center;gap:8px;font-weight:750;font-size:14px;position:relative;box-shadow:var(--sh-1);white-space:nowrap}
+.bp small{font-size:12px;font-weight:600;color:var(--ink-3)}
+.bp small b{color:var(--warn-ink)}
+.bp[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+.bp[aria-pressed="true"] small{color:rgb(255 255 255/.7)}.bp[aria-pressed="true"] small b{color:#F6C77A}
+.bp .dot{position:absolute;top:-3px;right:-3px;width:11px;height:11px;border-radius:50%;background:var(--bad);border:2px solid var(--bg)}
+.all{margin-left:auto;height:40px;padding:0 12px;border-radius:12px;font-weight:700;color:var(--brand-ink);display:inline-flex;align-items:center;gap:4px}
+.all:hover{background:var(--brand-soft)}
+
+/* 도구 줄 */
+.tool{display:flex;align-items:center;gap:10px;padding:16px 0 12px}
+.ds{height:46px;border-radius:var(--r-md);background:var(--surface-3);display:grid;grid-template-columns:44px auto 44px;align-items:center}
+.ds .nv{height:46px;display:grid;place-items:center;color:var(--ink-2)}
+.ds .c{display:flex;align-items:center;gap:7px;font-size:16px;font-weight:750;padding:0 8px;white-space:nowrap}
+.ds .c svg{color:var(--ink-3)}
+.ti{font-size:11.5px;font-weight:750;color:var(--brand-ink);background:var(--brand-soft);border-radius:6px;padding:2px 6px}
+.tdy{height:46px;padding:0 15px;border-radius:var(--r-md);background:var(--brand);color:var(--on-brand);font-weight:750}
+.seg{background:var(--surface-3);border-radius:var(--r-md);padding:3px;display:flex;gap:2px}
+.seg button{height:44px;padding:0 14px;border-radius:var(--r-sm);font-size:13.5px;font-weight:650;color:var(--ink-2);display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.seg button b{font-size:15px;font-weight:800;color:var(--ink)}
+.seg button.mon b{color:var(--warn-ink)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:var(--sh-1)}
+.srch{height:46px;width:230px;border-radius:var(--r-md);border:1px solid var(--line);background:var(--surface);padding:0 12px 0 38px;font-size:14px}
+.srw{position:relative}.srw svg{position:absolute;left:12px;top:14px;color:var(--ink-3)}
+.btn{height:46px;padding:0 14px;border-radius:var(--r-md);font-weight:750;display:inline-flex;align-items:center;gap:7px;background:var(--surface);border:1px solid var(--line);white-space:nowrap}
+.btn.pri{background:var(--brand);border-color:var(--brand);color:var(--on-brand)}
+
+/* 표 */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--sh-1);overflow:clip;margin-bottom:28px}
+table{width:100%;border-collapse:collapse;table-layout:fixed}
+th{height:40px;font-size:12px;font-weight:700;color:var(--ink-3);text-align:left;padding:0 8px;background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:124px;z-index:5;white-space:nowrap}
+th.c,td.c{text-align:center}
+td{padding:9px 8px;border-top:1px solid var(--line-2);vertical-align:middle}
+tr.gh td{background:var(--surface-2);padding:0 14px;height:40px;font-size:13px;font-weight:750;color:var(--ink-2);border-top:1px solid var(--line)}
+tr.gh td small{font-weight:550;color:var(--ink-3);margin-left:6px}
+tr.gh button{display:inline-flex;align-items:center;gap:6px;height:40px;font-weight:750}
+tr.bk{position:relative}
+tr.bk:hover td{background:#FCFBF8}
+tr.bk td:first-child{position:relative}
+tr.bk td:first-child::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:0 3px 3px 0;background:var(--edge,transparent)}
+.ck{width:44px;height:44px;display:grid;place-items:center;margin:auto}
+.ck .cc{width:26px;height:26px;border-radius:50%;border:2px solid #C3C7C0;display:grid;place-items:center;background:var(--surface);transition:all .2s var(--ease)}
+.ck svg{width:15px;height:15px;stroke-width:3;color:#fff;opacity:0;transform:scale(.4);transition:all .22s var(--ease)}
+.done .ck .cc{background:var(--ok);border-color:var(--ok);box-shadow:0 0 0 4px var(--ok-soft)}
+.done .ck svg{opacity:1;transform:none}
+.u{font-size:18px;font-weight:800;letter-spacing:-.03em}
+.u small{display:block;font-size:11px;font-weight:700;color:var(--warn-ink);letter-spacing:0}
+.nmb{display:block;text-align:left;width:100%;min-height:44px;border-radius:10px;padding:2px 6px;margin:-2px -6px}
+.nmb:hover{background:var(--surface-2)}
+.nmb b{font-size:15.5px;font-weight:750;display:flex;align-items:center;gap:6px}
+.nmb .tel{font-size:12.5px;color:var(--ink-2)}
+.tag{font-size:10.5px;font-weight:750;border-radius:6px;padding:1px 5px}
+.tag.rv{color:var(--info-ink);background:var(--info-soft)}
+.chn{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:650;color:var(--ink-2)}
+.chn i{width:7px;height:7px;border-radius:50%}
+.cs{font-size:11.5px;font-weight:700;color:var(--ok-ink);margin-left:6px}
+.st b{font-weight:700;display:block}.st small{font-size:12px;color:var(--ink-3);white-space:nowrap}
+.eta{font-size:15px;font-weight:750}
+.eta.no{font-size:13px;font-weight:600;color:var(--ink-3)}
+.pp{width:46px;height:44px;border-radius:12px;border:1px solid var(--line);background:var(--surface-2);text-align:center;font-size:16px;font-weight:800;-moz-appearance:textfield}
+.pp::-webkit-inner-spin-button{-webkit-appearance:none}
+.pp:focus{border-color:var(--brand);background:var(--surface);box-shadow:0 0 0 3px color-mix(in srgb,var(--brand) 20%,transparent)}
+.pp.over{border-color:var(--warn-line);background:var(--warn-soft);color:var(--warn-ink)}
+.dogs{font-size:13px;line-height:1.5}
+.dogs b{font-weight:700}
+.dogs small{color:var(--ink-3);white-space:nowrap}
+.dogs .w{color:var(--warn-ink);font-weight:750}
+.pl{width:84px;height:44px;margin:auto;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:14px;font-weight:800;line-height:1.15}
+.pl small{font-size:11px;font-weight:650;opacity:.88}
+.pl.set{background:var(--warn-soft);color:var(--warn-ink)}
+.pl.ok{background:var(--ok-soft);color:var(--ok-ink)}
+.pl.tbd{background:var(--bad-soft);color:var(--bad-ink);font-size:12.5px}
+.pl.add{border:1.5px dashed var(--line);color:var(--ink-3);font-size:12.5px;font-weight:700}
+.pl.no{color:var(--ink-3);font-size:12px;font-weight:600}
+.mny{text-align:right}
+.mny b{font-size:14.5px;font-weight:750;display:block}
+.mny .d{display:inline-flex;align-items:center;gap:3px;font-size:13px;font-weight:800;color:var(--warn-ink)}
+.mny .d svg{width:14px;height:14px}
+.mny small{display:block;font-size:11.5px;color:var(--ink-3)}
+.rq{font-size:12.5px;font-weight:650;color:var(--bad-ink);display:flex;gap:5px;align-items:flex-start;margin-bottom:5px;line-height:1.4}
+.rq svg{width:14px;height:14px;margin-top:1px}
+.memo{width:100%;height:36px;border-radius:10px;border:1px solid var(--line);background:var(--surface-2);padding:0 10px;font-size:13px}
+.memo:focus{border-color:var(--brand);background:var(--surface)}
+.fb{height:44px;width:100%;border-radius:12px;font-size:13px;font-weight:750;display:inline-flex;align-items:center;justify-content:center;gap:5px;border:1px solid var(--line);background:var(--surface);color:var(--ink-2);white-space:nowrap}
+.fb:hover{border-color:var(--ink-4)}
+.fb.due{background:var(--brand);border-color:var(--brand);color:var(--on-brand)}
+.fb.has{background:var(--ok-soft);border-color:var(--ok-soft);color:var(--ok-ink)}
+.done td{color:var(--ink-3)}
+.done .u,.done .nmb b{color:var(--ink-3)}
+.note{display:flex;gap:8px;font-size:13px;color:var(--ink-2);line-height:1.6;margin:-12px 0 26px;padding:12px 16px;background:var(--surface);border:1px solid var(--line);border-radius:14px}
+.note svg{color:var(--ink-3);margin-top:2px}
+.note b{color:var(--ink)}
+
+/* 오른쪽 서랍(예약 상세) */
+.scrim{position:fixed;inset:0;background:rgb(16 20 18/.28);z-index:40;opacity:0;pointer-events:none;transition:opacity .2s}
+.scrim.on{opacity:1;pointer-events:auto}
+.drw{position:fixed;top:0;right:0;bottom:0;width:440px;background:var(--surface);z-index:41;box-shadow:var(--sh-3);transform:translateX(102%);transition:transform .28s var(--ease);display:flex;flex-direction:column}
+.drw.on{transform:none}
+.dh{display:flex;align-items:center;gap:10px;padding:18px 14px 12px 22px;border-bottom:1px solid var(--line-2)}
+.dh h3{font-size:20px;font-weight:800;letter-spacing:-.025em;line-height:1.25}
+.dh h3 small{display:block;font-size:12.5px;font-weight:600;color:var(--ink-3)}
+.call{width:44px;height:44px;border-radius:50%;background:var(--brand-soft);color:var(--brand-ink);display:grid;place-items:center}
+.x{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;color:var(--ink-3)}
+.db{flex:1;overflow:auto;padding:16px 22px}
+.tg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tile{background:var(--surface-2);border:1px solid var(--line-2);border-radius:14px;padding:10px 12px}
+.tile small{display:block;font-size:12px;font-weight:650;color:var(--ink-3)}
+.tile b{display:block;font-size:15px;font-weight:750}
+.tile em{display:block;font-style:normal;font-size:12.5px;color:var(--ink-2)}
+.box{border-radius:14px;padding:12px 14px;margin-top:10px;display:flex;gap:10px;align-items:center;font-size:14px}
+.box.due{background:var(--warn-soft);color:var(--warn-ink)}
+.box.due .amt{font-size:20px;font-weight:800;display:block}
+.box.req{background:var(--bad-soft);color:var(--bad-ink);font-weight:650}
+.lab{font-size:12.5px;font-weight:700;color:var(--ink-3);margin:16px 2px 8px}
+.ta{width:100%;min-height:80px;border-radius:12px;border:1px solid var(--line);background:var(--surface-2);padding:10px 12px;font-size:14.5px;resize:vertical}
+.df{display:flex;gap:8px;padding:14px 22px 22px;border-top:1px solid var(--line-2)}
+.df .btn{flex:1;justify-content:center;height:50px}
+.toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,12px);background:var(--ink);color:#fff;border-radius:14px;padding:8px 8px 8px 16px;display:flex;align-items:center;gap:12px;font-weight:600;opacity:0;transition:all .22s var(--ease);z-index:60;pointer-events:none;min-height:50px}
+.toast.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.toast button{height:36px;padding:0 12px;border-radius:10px;font-weight:800;color:#BFE6CB;background:rgb(255 255 255/.08)}
+.rb{display:flex;align-items:center;justify-content:center;gap:6px;padding:8px;background:var(--ink);color:#fff;font-size:12.5px}
+.rb button{height:30px;padding:0 10px;border-radius:8px;border:1px solid rgb(255 255 255/.25);font-weight:700;font-size:12.5px;color:#fff}
+.rb button[aria-pressed="true"]{background:#fff;color:var(--ink)}
+</style>
+</head>
+<body>
+<svg style="display:none" aria-hidden="true"><symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" /> <path d="m21 21-4.3-4.3" /></symbol><symbol id="i-message-square-text" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /> <path d="M13 8H7" /> <path d="M17 12H7" /></symbol><symbol id="i-bed-double" viewBox="0 0 24 24"><path d="M2 20v-8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v8" /> <path d="M4 10V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4" /> <path d="M12 4v6" /> <path d="M2 18h20" /></symbol><symbol id="i-calendar-days" viewBox="0 0 24 24"><path d="M8 2v4" /> <path d="M16 2v4" /> <rect width="18" height="18" x="3" y="4" rx="2" /> <path d="M3 10h18" /> <path d="M8 14h.01" /> <path d="M12 14h.01" /> <path d="M16 14h.01" /> <path d="M8 18h.01" /> <path d="M12 18h.01" /> <path d="M16 18h.01" /></symbol><symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6" /></symbol><symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6" /></symbol><symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" /></symbol><symbol id="i-list-checks" viewBox="0 0 24 24"><path d="m3 17 2 2 4-4" /> <path d="m3 7 2 2 4-4" /> <path d="M13 6h8" /> <path d="M13 12h8" /> <path d="M13 18h8" /></symbol><symbol id="i-calendar-range" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="4" rx="2" /> <path d="M16 2v4" /> <path d="M3 10h18" /> <path d="M8 2v4" /> <path d="M17 14h-6" /> <path d="M13 18H7" /> <path d="M7 14h.01" /> <path d="M17 18h.01" /></symbol><symbol id="i-flame" viewBox="0 0 24 24"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" /></symbol><symbol id="i-ellipsis" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1" /> <circle cx="19" cy="12" r="1" /> <circle cx="5" cy="12" r="1" /></symbol><symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" /></symbol><symbol id="i-dog" viewBox="0 0 24 24"><path d="M11.25 16.25h1.5L12 17z" /> <path d="M16 14v.5" /> <path d="M4.42 11.247A13.152 13.152 0 0 0 4 14.556C4 18.728 7.582 21 12 21s8-2.272 8-6.444a11.702 11.702 0 0 0-.493-3.309" /> <path d="M8 14v.5" /> <path d="M8.5 8.5c-.384 1.05-1.083 2.028-2.344 2.5-1.931.722-3.576-.297-3.656-1-.113-.994 1.177-6.53 4-7 1.923-.321 3.651.845 3.651 2.235A7.497 7.497 0 0 1 14 5.277c0-1.39 1.844-2.598 3.767-2.277 2.823.47 4.113 6.006 4 7-.08.703-1.725 1.722-3.656 1-1.261-.472-1.855-1.45-2.239-2.5" /></symbol><symbol id="i-phone" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" /></symbol><symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18" /> <path d="m6 6 12 12" /></symbol><symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14" /> <path d="M12 5v14" /></symbol><symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14" /></symbol><symbol id="i-banknote" viewBox="0 0 24 24"><rect width="20" height="12" x="2" y="6" rx="2" /> <circle cx="12" cy="12" r="2" /> <path d="M6 12h.01M18 12h.01" /></symbol><symbol id="i-circle-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /> <line x1="12" x2="12" y1="8" y2="12" /> <line x1="12" x2="12.01" y1="16" y2="16" /></symbol><symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /> <circle cx="9" cy="7" r="4" /> <path d="M22 21v-2a4 4 0 0 0-3-3.87" /> <path d="M16 3.13a4 4 0 0 1 0 7.75" /></symbol><symbol id="i-coffee" viewBox="0 0 24 24"><path d="M10 2v2" /> <path d="M14 2v2" /> <path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1" /> <path d="M6 2v2" /></symbol><symbol id="i-car" viewBox="0 0 24 24"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2" /> <circle cx="7" cy="17" r="2" /> <path d="M9 17h6" /> <circle cx="17" cy="17" r="2" /></symbol><symbol id="i-package" viewBox="0 0 24 24"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z" /> <path d="M12 22V12" /> <path d="m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7" /> <path d="m7.5 4.27 9 5.15" /></symbol><symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /> <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" /> <path d="M2 12h20" /></symbol><symbol id="i-key-round" viewBox="0 0 24 24"><path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z" /> <circle cx="16.5" cy="7.5" r=".5" fill="currentColor" /></symbol><symbol id="i-tent" viewBox="0 0 24 24"><path d="M3.5 21 14 3" /> <path d="M20.5 21 10 3" /> <path d="M15.5 21 12 15l-3.5 6" /> <path d="M2 21h20" /></symbol><symbol id="i-store" viewBox="0 0 24 24"><path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7" /> <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" /> <path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4" /> <path d="M2 7h20" /> <path d="M22 7v3a2 2 0 0 1-2 2a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 4 12a2 2 0 0 1-2-2V7" /></symbol><symbol id="i-wallet" viewBox="0 0 24 24"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1" /> <path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4" /></symbol><symbol id="i-receipt" viewBox="0 0 24 24"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z" /> <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8" /> <path d="M12 17.5v-11" /></symbol><symbol id="i-calculator" viewBox="0 0 24 24"><rect width="16" height="20" x="4" y="2" rx="2" /> <line x1="8" x2="16" y1="6" y2="6" /> <line x1="16" x2="16" y1="14" y2="18" /> <path d="M16 10h.01" /> <path d="M12 10h.01" /> <path d="M8 10h.01" /> <path d="M12 14h.01" /> <path d="M8 14h.01" /> <path d="M12 18h.01" /> <path d="M8 18h.01" /></symbol><symbol id="i-chart-line" viewBox="0 0 24 24"><path d="M3 3v16a2 2 0 0 0 2 2h16" /> <path d="m19 9-5 5-4-4-3 3" /></symbol><symbol id="i-star" viewBox="0 0 24 24"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z" /></symbol><symbol id="i-megaphone" viewBox="0 0 24 24"><path d="m3 11 18-5v12L3 14v-3z" /> <path d="M11.6 16.8a3 3 0 1 1-5.8-1.6" /></symbol><symbol id="i-tag" viewBox="0 0 24 24"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z" /> <circle cx="7.5" cy="7.5" r=".5" fill="currentColor" /></symbol><symbol id="i-settings" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" /> <circle cx="12" cy="12" r="3" /></symbol><symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" /> <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" /></symbol><symbol id="i-log-out" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /> <polyline points="16 17 21 12 16 7" /> <line x1="21" x2="9" y1="12" y2="12" /></symbol><symbol id="i-circle-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /> <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" /> <path d="M12 17h.01" /></symbol><symbol id="i-history" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /> <path d="M3 3v5h5" /> <path d="M12 7v5l4 2" /></symbol><symbol id="i-zap" viewBox="0 0 24 24"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z" /></symbol><symbol id="i-printer" viewBox="0 0 24 24"><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" /> <path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6" /> <rect x="6" y="14" width="12" height="8" rx="1" /></symbol><symbol id="i-refresh-cw" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" /> <path d="M21 3v5h-5" /> <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" /> <path d="M8 16H3v5" /></symbol><symbol id="i-arrow-left" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7" /> <path d="M19 12H5" /></symbol><symbol id="i-columns-3" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2" /> <path d="M9 3v18" /> <path d="M15 3v18" /></symbol><symbol id="i-languages" viewBox="0 0 24 24"><path d="m5 8 6 6" /> <path d="m4 14 6-6 2-3" /> <path d="M2 5h12" /> <path d="M7 2h1" /> <path d="m22 22-5-10-5 10" /> <path d="M14 18h6" /></symbol><symbol id="i-sparkles" viewBox="0 0 24 24"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z" /> <path d="M20 3v4" /> <path d="M22 5h-4" /> <path d="M4 17v2" /> <path d="M5 18H3" /></symbol><symbol id="i-spray-can" viewBox="0 0 24 24"><path d="M3 3h.01" /> <path d="M7 5h.01" /> <path d="M11 7h.01" /> <path d="M3 7h.01" /> <path d="M7 9h.01" /> <path d="M3 11h.01" /> <rect width="4" height="4" x="15" y="5" /> <path d="m19 9 2 2v10c0 .6-.4 1-1 1h-6c-.6 0-1-.4-1-1V11l2-2" /> <path d="m13 14 8-2" /> <path d="m13 19 8-2" /></symbol><symbol id="i-clipboard-list" viewBox="0 0 24 24"><rect width="8" height="4" x="8" y="2" rx="1" ry="1" /> <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /> <path d="M12 11h4" /> <path d="M12 16h4" /> <path d="M8 11h.01" /> <path d="M8 16h.01" /></symbol><symbol id="i-notebook-pen" viewBox="0 0 24 24"><path d="M13.4 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7.4" /> <path d="M2 6h4" /> <path d="M2 10h4" /> <path d="M2 14h4" /> <path d="M2 18h4" /> <path d="M21.378 5.626a1 1 0 1 0-3.004-3.004l-5.01 5.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z" /></symbol><symbol id="i-calendar-check" viewBox="0 0 24 24"><path d="M8 2v4" /> <path d="M16 2v4" /> <rect width="18" height="18" x="3" y="4" rx="2" /> <path d="M3 10h18" /> <path d="m9 16 2 2 4-4" /></symbol><symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" /> <path d="M12 2v2" /> <path d="M12 20v2" /> <path d="m4.93 4.93 1.41 1.41" /> <path d="m17.66 17.66 1.41 1.41" /> <path d="M2 12h2" /> <path d="M20 12h2" /> <path d="m6.34 17.66-1.41 1.41" /> <path d="m19.07 4.93-1.41 1.41" /></symbol><symbol id="i-moon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" /></symbol><symbol id="i-shield-check" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /> <path d="m9 12 2 2 4-4" /></symbol><symbol id="i-messages-square" viewBox="0 0 24 24"><path d="M14 9a2 2 0 0 1-2 2H6l-4 4V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2z" /> <path d="M18 9h2a2 2 0 0 1 2 2v11l-4-4h-6a2 2 0 0 1-2-2v-1" /></symbol><symbol id="i-trending-up" viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17" /> <polyline points="16 7 22 7 22 13" /></symbol><symbol id="i-user-round" viewBox="0 0 24 24"><circle cx="12" cy="8" r="5" /> <path d="M20 21a8 8 0 0 0-16 0" /></symbol><symbol id="i-lock" viewBox="0 0 24 24"><rect width="18" height="11" x="3" y="11" rx="2" ry="2" /> <path d="M7 11V7a5 5 0 0 1 10 0v4" /></symbol><symbol id="i-map-pin" viewBox="0 0 24 24"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" /> <circle cx="12" cy="10" r="3" /></symbol><symbol id="i-bell" viewBox="0 0 24 24"><path d="M10.268 21a2 2 0 0 0 3.464 0" /> <path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326" /></symbol><symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /> <polyline points="12 6 12 12 16 14" /></symbol><symbol id="i-external-link" viewBox="0 0 24 24"><path d="M15 3h6v6" /> <path d="M10 14 21 3" /> <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /></symbol><symbol id="i-hand-coins" viewBox="0 0 24 24"><path d="M11 15h2a2 2 0 1 0 0-4h-3c-.6 0-1.1.2-1.4.6L3 17" /> <path d="m7 21 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.75-2.91l-4.2 3.9" /> <path d="m2 16 6 6" /> <circle cx="16" cy="9" r="2.9" /> <circle cx="6" cy="5" r="3" /></symbol><symbol id="i-undo-2" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5" /> <path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11" /></symbol><symbol id="i-sliders-horizontal" viewBox="0 0 24 24"><line x1="21" x2="14" y1="4" y2="4" /> <line x1="10" x2="3" y1="4" y2="4" /> <line x1="21" x2="12" y1="12" y2="12" /> <line x1="8" x2="3" y1="12" y2="12" /> <line x1="21" x2="16" y1="20" y2="20" /> <line x1="12" x2="3" y1="20" y2="20" /> <line x1="14" x2="14" y1="2" y2="6" /> <line x1="8" x2="8" y1="10" y2="14" /> <line x1="16" x2="16" y1="18" y2="22" /></symbol><symbol id="i-building-2" viewBox="0 0 24 24"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z" /> <path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2" /> <path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2" /> <path d="M10 6h4" /> <path d="M10 10h4" /> <path d="M10 14h4" /> <path d="M10 18h4" /></symbol><symbol id="i-circle-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /> <path d="m9 12 2 2 4-4" /></symbol><symbol id="i-circle-dashed" viewBox="0 0 24 24"><path d="M10.1 2.182a10 10 0 0 1 3.8 0" /> <path d="M13.9 21.818a10 10 0 0 1-3.8 0" /> <path d="M17.609 3.721a10 10 0 0 1 2.69 2.7" /> <path d="M2.182 13.9a10 10 0 0 1 0-3.8" /> <path d="M20.279 17.609a10 10 0 0 1-2.7 2.69" /> <path d="M21.818 10.1a10 10 0 0 1 0 3.8" /> <path d="M3.721 6.391a10 10 0 0 1 2.7-2.69" /> <path d="M6.391 20.279a10 10 0 0 1-2.69-2.7" /></symbol><symbol id="i-badge-check" viewBox="0 0 24 24"><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z" /> <path d="m9 12 2 2 4-4" /></symbol><symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14" /> <path d="m12 5 7 7-7 7" /></symbol><symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /> <path d="M12 16v-4" /> <path d="M12 8h.01" /></symbol><symbol id="i-paw" viewBox="0 0 24 24"><circle cx="11" cy="4" r="2"/><circle cx="18" cy="8" r="2"/><circle cx="4" cy="8" r="2"/><path d="M8 14.5c0-2 1.5-4 4-4s4 2 4 4c0 1.8-1.5 2-2.5 2.5-1 .5-1 2-1.5 2.5s-2.5 0-3-1.5c-.5-1.5-1-1.7-1-3.5z"/></symbol></svg>
+<div class="rb"><a href="index.html#pc" style="color:#fff;font-weight:800;text-decoration:none;margin-right:10px">← 안내로</a>연습 화면(가짜 데이터) · 보는 사람 <button data-role="hq" aria-pressed="true">본사·대표</button><button data-role="mgr" aria-pressed="false">지점 매니저</button><button data-role="staff" aria-pressed="false">직원</button></div>
+<div class="top">
+ <div class="w">
+  <div class="bar">
+   <span class="logo"><span class="m"><svg class="i"><use href="#i-paw"/></svg></span>글램독</span>
+   <nav class="nav" aria-label="주 메뉴">
+    <button aria-current="page"><svg class="i"><use href="#i-list-checks"/></svg>체크인</button>
+    <button data-toast="예약: 예약현황 | 달력 (한 메뉴 두 보기)"><svg class="i"><use href="#i-calendar-range"/></svg>예약</button>
+    <button data-toast="청소"><svg class="i"><use href="#i-spray-can"/></svg>청소</button>
+    <button data-toast="바베큐"><svg class="i"><use href="#i-flame"/></svg>바베큐</button>
+    <button data-toast="근무표"><svg class="i"><use href="#i-calendar-check"/></svg>근무표</button>
+    <span class="sep"></span>
+    <div class="dd"><button data-m="mMoney">돈<span class="bd hq">2</span><svg class="i"><use href="#i-chevron-down"/></svg></button>
+     <div class="menu" id="mMoney" hidden><button data-toast="현장기록"><svg class="i"><use href="#i-receipt"/></svg>현장기록</button><button class="mg" data-toast="지출"><svg class="i"><use href="#i-wallet"/></svg>지출</button><button class="mg" data-toast="현금시제"><svg class="i"><use href="#i-calculator"/></svg>현금시제</button><button class="hq" data-toast="정산"><svg class="i"><use href="#i-hand-coins"/></svg>정산<span class="cnt">미송금 2주차</span></button></div></div>
+    <div class="dd hq"><button data-m="mHq">본사<svg class="i"><use href="#i-chevron-down"/></svg></button>
+     <div class="menu" id="mHq" hidden><button data-toast="전체 예약"><svg class="i"><use href="#i-clipboard-list"/></svg>전체 예약<small>사업장 6곳</small></button><button data-toast="매출 현황"><svg class="i"><use href="#i-chart-line"/></svg>매출 현황</button><button data-toast="리뷰 분석"><svg class="i"><use href="#i-star"/></svg>리뷰 분석</button><button data-toast="마케팅"><svg class="i"><use href="#i-megaphone"/></svg>마케팅</button><button data-toast="요금관리"><svg class="i"><use href="#i-tag"/></svg>요금관리</button></div></div>
+    <div class="dd hq"><button data-m="mSet">설정<svg class="i"><use href="#i-chevron-down"/></svg></button>
+     <div class="menu" id="mSet" hidden><button data-toast="인수인계 설정"><svg class="i"><use href="#i-history"/></svg>인수인계 설정</button><button data-toast="동의 혜택"><svg class="i"><use href="#i-sparkles"/></svg>동의 혜택</button><button data-toast="바로가기 설정"><svg class="i"><use href="#i-link"/></svg>바로가기 설정</button><button data-toast="플러스 신청 관리"><svg class="i"><use href="#i-zap"/></svg>플러스 신청 관리<span class="cnt" style="background:var(--bad)">새 1</span></button></div></div>
+   </nav>
+   <span class="sp"></span>
+   <button class="tb" data-toast="예약 검색"><svg class="i"><use href="#i-search"/></svg>검색</button>
+   <button class="tb" data-toast="인수인계 (미해결 2 · 첫 화면 팝업은 지금처럼)"><svg class="i"><use href="#i-message-square-text"/></svg>인수인계<span class="c">2</span></button>
+   <button class="tb" data-toast="추가이불"><svg class="i"><use href="#i-bed-double"/></svg>추가이불<span class="c i">1</span></button>
+   <button class="tb n" data-toast="새로고침"><svg class="i"><use href="#i-refresh-cw"/></svg>16:06</button>
+   <div class="dd"><button class="tb" data-m="mMe"><span class="av">피</span><svg class="i"><use href="#i-chevron-down"/></svg></button>
+    <div class="menu" id="mMe" hidden style="left:auto;right:0"><button data-toast="플러스 (부가기능)"><svg class="i"><use href="#i-zap"/></svg>플러스</button><button data-toast="셀디 PMS (새 창)"><svg class="i"><use href="#i-external-link"/></svg>셀디 PMS</button><button data-toast="NOL 파트너센터 (새 창)"><svg class="i"><use href="#i-external-link"/></svg>NOL 파트너센터</button><button data-toast="도움말"><svg class="i"><use href="#i-circle-help"/></svg>도움말</button><button data-toast="예전 화면으로 (이번 주만)"><svg class="i"><use href="#i-undo-2"/></svg>예전 화면으로</button><button data-toast="로그아웃"><svg class="i"><use href="#i-log-out"/></svg>로그아웃</button></div></div>
+  </div>
+  <div class="brs hq" id="brs"></div>
+ </div>
+</div>
+
+<div class="w">
+ <div class="tool">
+  <div class="ds"><button class="nv" data-day="-1" aria-label="이전 날"><svg class="i"><use href="#i-chevron-left"/></svg></button><span class="c n" id="dl"></span><button class="nv" data-day="1" aria-label="다음 날"><svg class="i"><use href="#i-chevron-right"/></svg></button></div>
+  <button class="tdy" id="tdy" data-day="0" hidden>오늘로</button>
+  <div class="seg" id="seg"></div>
+  <span class="sp"></span>
+  <div class="srw"><svg class="i"><use href="#i-search"/></svg><input class="srch" id="q" placeholder="이 날짜에서 찾기 (이름·객실)"></div>
+  <button class="btn" data-toast="인쇄 — 지금 A4 양식 그대로(빈 줄 포함)"><svg class="i"><use href="#i-printer"/></svg>인쇄</button>
+ </div>
+ <div class="card"><table>
+  <colgroup><col style="width:56px"><col style="width:66px"><col style="width:160px"><col style="width:136px"><col style="width:64px"><col style="width:64px"><col style="width:158px"><col style="width:100px"><col style="width:104px"><col><col style="width:118px"></colgroup>
+  <thead><tr><th class="c">입실</th><th>객실</th><th>예약자</th><th>숙박</th><th>도착</th><th class="c">인원</th><th>반려견</th><th class="c">BBQ</th><th style="text-align:right">금액</th><th>요청 · 관리자 메모</th><th class="c">현장기록</th></tr></thead>
+  <tbody id="tb"></tbody></table></div>
+ <div class="note"><svg class="i"><use href="#i-info"/></svg><span><b>PC는 표 그대로</b>(같은 뜻의 칸만 묶어 13→11칸) · 폰과 같은 색·상태 규칙 · 이름을 누르면 오른쪽에 예약 상세(폰의 시트와 같은 내용) · 인원은 입력 후 칸을 벗어날 때 1번 저장 · <b>인쇄는 지금 양식 그대로</b>(화면과 따로 그림) · 본사는 위 사업장 줄 한 번 클릭으로 전환, 날짜·보기·검색어 유지</span></div>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drw" id="drw" role="dialog" aria-modal="true"></aside>
+<div class="toast" id="toast"><span id="tt"></span><button id="tu" hidden>되돌리기</button></div>
+
+<script>
+const CH={ya:["야놀자","#F0386B"],gc:["여기어때","#7B4DFF"],nv:["네이버","#03C75A"],ag:["아고다","#4A7FE8"],ab:["에어비앤비","#FF5A5F"],bl:["반려생활","#F07A1A"],dr:["직접","#14907A"]};
+const BR=[["양양점",9,6,1],["가평점",4,3,0],["청평점",6,2,0],["경주점",3,3,1],["영흥도점",5,1,0],["통영점",7,5,0]];
+const R=[
+ {u:"306",nm:"이도윤",ch:"ya",n:1,ci:"10/26–10/27",eta:"15:00",pp:2,base:2,ext:[["달봉이","시츄","5-10kg"]],ad:"none",paid:43056,due:0,rv:1,cs:1,tel:"010-0000-1306",bk:"10/26 11:18"},
+ {u:"307",nm:"박서연",ch:"ya",n:1,ci:"10/26–10/27",eta:"16:00",pp:3,base:2,ext:[["봉구","푸들","~5kg"]],ad:{t:"18:00",pl:"야외",s:"2",r:0},paid:47840,due:20000,dt:"인원 +1",tel:"010-0000-1307",bk:"10/26 01:38",cs:1},
+ {u:"310",nm:"정민재",ch:"nv",n:1,ci:"10/26–10/27",eta:"17:30",pp:2,base:2,ext:[["코코","웰시코기","10-15kg",1]],ad:{t:"19:00",pl:"실내",s:"1",r:1},paid:53140,due:10000,dt:"무게 추가",tel:"010-0000-1310",bk:"10/24 22:10"},
+ {u:"309",nm:"최유나",ch:"gc",n:2,ci:"10/26–10/28",eta:"19:00",pp:2,base:2,ext:[["모찌","포메","~5kg"],["모아","포메","~5kg"]],ad:null,paid:95680,due:20000,dt:"애견 +1 × 2박",rq:"늦은 도착, 셀프 체크인 안내",tel:"010-0000-1309",bk:"10/20 16:57",cs:1},
+ {u:"311",nm:"한지우",ch:"ag",n:3,ci:"10/26–10/29",eta:"",pp:4,base:4,ext:[["두부","비숑","5-10kg"]],ad:"tbd",paid:212400,due:0,tel:"010-0000-1311",bk:"10/02 09:12"},
+ {u:"611",nm:"강예린",ch:"dr",n:1,ci:"10/26–10/27",eta:"20:00",pp:2,base:2,ext:[["라떼","말티즈","~5kg"]],ad:null,paid:53140,due:0,rq:"생일 케이크 냉장 보관 부탁",tel:"010-0000-1611",bk:"10/26 15:08"},
+ {u:"303",nm:"김하늘",ch:"bl",n:2,ci:"10/25–10/27",eta:"",pp:2,base:2,ext:[["별이","말티푸","~5kg"]],ad:"none",paid:88200,due:0,done:1,stay:2,at:"어제",tel:"010-0000-1303",bk:"10/11 16:19"},
+ {u:"607",nm:"오세린",ch:"ab",n:1,ci:"10/26–10/27",eta:"15:00",pp:2,base:2,ext:[["보리","시바","5-10kg"]],ad:{t:"18:30",pl:"야외",s:"3",r:0},paid:53140,due:0,done:1,at:"15:12",memo:"7시쯤 숯 추가 요청",field:30000,tel:"010-0000-1607",bk:"10/26 09:28"},
+ {u:"608",nm:"윤태오",ch:"ya",n:1,ci:"10/26–10/27",eta:"15:30",pp:2,base:2,ext:[["아롱이","시츄","5-10kg"]],ad:"none",paid:53140,due:0,done:1,at:"15:40",tel:"010-0000-1608",bk:"10/26 09:28"}];
+const $=s=>document.querySelector(s);const ic=n=>`<svg class="i"><use href="#i-${n}"/></svg>`;const won=v=>v.toLocaleString("ko-KR");
+const DOW="일월화수목금토";let S={b:0,day:0,f:"all",q:"",doneOpen:true,role:"hq"};
+function dl(o){const d=new Date(2026,9,26+o);return `${d.getMonth()+1}월 ${d.getDate()}일 (${DOW[d.getDay()]})`}
+function bq(a){if(a==="none")return `<span class="pl no">미이용</span>`;if(a==="tbd")return `<button class="pl tbd" data-toast="바베큐 시간·자리 정하기">시간 미정</button>`;if(!a)return `<button class="pl add" data-toast="바베큐 추가">+ 바베큐</button>`;
+ return `<button class="pl ${a.r?"ok":"set"}" data-toast="바베큐 시간·자리"><span class="n">${a.t}</span><small>${a.pl} ${a.s}번${a.r?" ✓":""}</small></button>`}
+function tr(r,i){const [cn,cc]=CH[r.ch];const edge=r.stay?"var(--warn)":r.rq?"var(--bad)":"transparent";const heavy=r.ext.some(d=>d[3]);
+ return `<tr class="bk ${r.done?"done":""}" style="--edge:${edge}">
+ <td class="c"><button class="ck" data-chk="${i}" aria-label="${r.u} 입실 체크"><span class="cc">${ic("check")}</span></button></td>
+ <td><span class="u n">${r.u}${r.stay?`<small>연박 ${r.stay}일</small>`:""}</span></td>
+ <td><button class="nmb" data-det="${i}"><b>${r.nm}${r.rv?`<span class="tag rv">재방문</span>`:""}</b><span class="chn"><i style="background:${cc}"></i>${cn}</span>${r.cs?`<span class="cs">✓수신동의</span>`:""}<br><span class="tel n">${r.tel}</span></button></td>
+ <td class="st n"><b>${r.ci}</b><small>${r.n}박 · 예약 ${r.bk}</small></td>
+ <td>${r.done?`<span class="eta no n">${r.at} 입실</span>`:r.eta?`<span class="eta n">${r.eta}</span>`:`<span class="eta no">미정</span>`}</td>
+ <td class="c"><input class="pp n ${r.pp>r.base?"over":""}" type="number" value="${r.pp}" data-pp="${i}" aria-label="${r.u} 인원"></td>
+ <td class="dogs">${r.ext.map(d=>`<b>${d[0]}</b> ${d[1]} <small class="${d[3]?"w":""}">${d[2]}</small>`).join("<br>")}</td>
+ <td class="c">${bq(r.ad)}</td>
+ <td class="mny n"><b>${won(r.paid)}</b>${r.due&&!r.done?`<span class="d">${ic("banknote")}+${won(r.due)}</span><small>${r.dt}</small>`:""}</td>
+ <td>${r.rq?`<div class="rq">${ic("circle-alert")}${r.rq}</div>`:""}<input class="memo" placeholder="관리자 메모…" value="${r.memo||""}"></td>
+ <td class="c">${r.field?`<button class="fb has n" data-toast="현장기록 보기">${ic("check")}${won(r.field)}</button>`:r.due&&!r.done?`<button class="fb due n" data-toast="현장기록 받기 (항목 미리 채움)">받기 +${won(r.due)}</button>`:`<button class="fb" data-toast="현장기록">+ 현장기록</button>`}</td></tr>`}
+function render(){
+ $("#brs").innerHTML=`<span class="lb">사업장</span>`+BR.map((b,i)=>`<button class="bp" data-br="${i}" aria-pressed="${S.b===i}">${b[0]}<small class="n">입실 ${b[1]} · <b>대기 ${b[2]}</b></small>${b[3]?'<span class="dot" title="미해결 인수인계"></span>':""}</button>`).join("")+`<button class="all" data-toast="본사 › 전체 예약 (사업장 6곳)">전체 예약 보기${ic("chevron-right")}</button>`;
+ $("#dl").innerHTML=`${ic("calendar-days")}${dl(S.day)}${S.day===0?'<span class="ti">오늘</span>':""}`;$("#tdy").hidden=S.day===0;
+ const wait=R.map((r,i)=>i).filter(i=>!R[i].done).sort((a,b)=>(R[a].eta||"99").localeCompare(R[b].eta||"99")),done=R.map((r,i)=>i).filter(i=>R[i].done);
+ const dueI=wait.filter(i=>R[i].due),sum=dueI.reduce((s,i)=>s+R[i].due,0),bbq=R.filter(r=>r.ad&&r.ad!=="none").length;
+ $("#seg").innerHTML=[["all","전체",R.length],["wait","입실 대기",wait.length],["due","받을 돈",dueI.length+" · +"+won(sum),"mon"],["bbq","BBQ",bbq]].map(([k,l,c,cl])=>`<button class="${cl||""}" data-f="${k}" aria-pressed="${S.f===k}">${l}<b class="n">${c}</b></button>`).join("");
+ const ok=i=>(S.f==="all"||(S.f==="wait"&&!R[i].done)||(S.f==="due"&&R[i].due&&!R[i].done)||(S.f==="bbq"&&R[i].ad&&R[i].ad!=="none"))&&(!S.q||(R[i].nm+R[i].u).includes(S.q));
+ const W=wait.filter(ok),D=done.filter(ok);
+ let h="";if(W.length)h+=`<tr class="gh"><td colspan="11">입실 대기 ${W.length}<small>도착순</small></td></tr>`+W.map(i=>tr(R[i],i)).join("");
+ if(D.length&&S.f!=="wait"&&S.f!=="due")h+=`<tr class="gh"><td colspan="11"><button data-dt>${ic(S.doneOpen?"chevron-down":"chevron-right")}입실 완료 ${D.length}</button></td></tr>`+(S.doneOpen?D.map(i=>tr(R[i],i)).join(""):"");
+ $("#tb").innerHTML=h||`<tr><td colspan="11" style="text-align:center;color:var(--ink-3);height:80px">해당하는 예약이 없어요</td></tr>`;
+ document.querySelectorAll(".hq").forEach(x=>x.hidden=S.role!=="hq");document.querySelectorAll(".mg").forEach(x=>x.hidden=S.role==="staff");
+ document.querySelector("th").parentNode.querySelectorAll("th").forEach(t=>t.style.top=(S.role==="hq"?124:64)+"px");
+}
+function det(i){const r=R[i];const [cn,cc]=CH[r.ch];
+ $("#drw").innerHTML=`<div class="dh"><h3><small><span class="chn"><i style="background:${cc}"></i>${cn}</span> · 예약 ${r.bk}</small>${r.u} · ${r.nm}</h3><span class="sp"></span><button class="call" data-toast="${r.tel}로 전화" aria-label="전화">${ic("phone")}</button><button class="x" data-x aria-label="닫기">${ic("x")}</button></div>
+ <div class="db"><div class="tg"><div class="tile"><small>숙박</small><b class="n">${r.ci}</b><em>${r.n}박</em></div><div class="tile"><small>도착</small><b class="n">${r.eta||"미정"}</b><em>${r.done?"입실함":"입실 전"}</em></div><div class="tile"><small>인원</small><b class="n">${r.pp}명</b><em>기본 ${r.base}명</em></div><div class="tile"><small>반려견</small><b>${r.ext.map(d=>d[0]+" · "+d[1]+" · "+d[2]).join("<br>")}</b></div><div class="tile"><small>결제</small><b class="n">${won(r.paid)}원</b><em>${cn}</em></div><div class="tile"><small>연락처</small><b class="n">${r.tel}</b><em>${r.cs?"수신동의 ✓":"수신동의 없음"}</em></div></div>
+ ${r.due&&!r.done?`<div class="box due">${ic("banknote")}<div style="flex:1"><small style="font-weight:700">받을 돈</small><span class="amt n">+${won(r.due)}원</span><small>${r.dt}</small></div><button class="btn pri" data-toast="현장기록 받기">현장기록 받기</button></div>`:""}
+ ${r.rq?`<div class="box req">${ic("circle-alert")}${r.rq}</div>`:""}
+ <div class="lab">관리자 메모</div><textarea class="ta" placeholder="다음 근무자에게 남길 메모">${r.memo||""}</textarea></div>
+ <div class="df">${r.done?`<button class="btn" data-chk="${i}">입실 취소</button>`:`<button class="btn pri" data-chk="${i}">${ic("check")}입실 체크</button>`}</div>`;
+ $("#scrim").classList.add("on");$("#drw").classList.add("on")}
+function closeD(){$("#scrim").classList.remove("on");$("#drw").classList.remove("on")}
+let ut,uf;function toast(m,u){$("#tt").textContent=m;uf=u;$("#tu").hidden=!u;$("#toast").classList.add("on");clearTimeout(ut);ut=setTimeout(()=>$("#toast").classList.remove("on"),u?4000:1800)}
+$("#tu").onclick=()=>{uf&&uf();render();$("#toast").classList.remove("on")};
+document.addEventListener("click",e=>{const g=s=>e.target.closest(s);let el;
+ if(!g(".dd"))document.querySelectorAll(".menu").forEach(m=>m.hidden=true);
+ if(el=g("[data-role]")){S.role=el.dataset.role;document.querySelectorAll("[data-role]").forEach(b=>b.setAttribute("aria-pressed",b===el));render();return}
+ if(el=g("[data-m]")){const m=document.getElementById(el.dataset.m);const was=m.hidden;document.querySelectorAll(".menu").forEach(x=>x.hidden=true);m.hidden=!was;return}
+ if(el=g("[data-br]")){S.b=+el.dataset.br;render();toast(`${BR[S.b][0]}(으)로 전환 · 날짜·보기·검색어 그대로`);return}
+ if(el=g("[data-day]")){const v=+el.dataset.day;S.day=v===0?0:S.day+v;render();return}
+ if(el=g("[data-f]")){S.f=el.dataset.f;render();return}
+ if(el=g("[data-dt]")){S.doneOpen=!S.doneOpen;render();return}
+ if(el=g("[data-chk]")){const r=R[+el.dataset.chk];const was=r.done;r.done=was?0:1;if(!was)r.at="16:2"+el.dataset.chk;closeD();render();toast(`${r.u} ${was?"입실 취소":"입실 완료"}`,()=>{r.done=was});return}
+ if(el=g("[data-det]")){det(+el.dataset.det);return}
+ if(el=g("[data-x]")||g("#scrim")){closeD();return}
+ if(el=g("[data-toast]")){toast(el.dataset.toast);document.querySelectorAll(".menu").forEach(m=>m.hidden=true);return}
+});
+document.addEventListener("change",e=>{if(e.target.dataset.pp!==undefined){const r=R[+e.target.dataset.pp];const p=r.pp;r.pp=Math.max(1,parseInt(e.target.value)||p);e.target.classList.toggle("over",r.pp>r.base);if(r.pp!==p)toast(`${r.u} 인원 ${r.pp}명 저장`,()=>{r.pp=p})}});
+$("#q").addEventListener("input",e=>{S.q=e.target.value.trim();render()});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeD()});
+render();
+</script>
+</body>
+</html>

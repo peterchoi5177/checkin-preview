@@ -1,0 +1,842 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>숙소 운영앱 · 폰 프로토타입 v3 (1안 포레스트 · 범용)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+/* ═════════════ 디자인 토큰 v1 — 중립 바탕 + 브랜드 색 한 칸 ═════════════ */
+:root{
+  --font:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --bg:#F6F5F1; --surface:#FFFFFF; --surface-2:#FAF9F6; --surface-3:#EEECE6; --line:#E4E1D9; --line-2:#EFEDE7;
+  --ink:#17201B; --ink-2:#545E57; --ink-3:#646B66; --ink-4:#A9AEA9;
+  --brand:#1F5A36; --brand-press:#184A2C; --brand-soft:#E4EFE7; --brand-ink:#1F5A36; --on-brand:#FFFFFF;
+  --ok:#2E8549; --ok-soft:#E3F1E7; --ok-ink:#22673A;
+  --warn:#A8650B; --warn-soft:#FCF1DE; --warn-ink:#8F4E07; --warn-line:#EBC17E;
+  --bad:#C2402F; --bad-soft:#FBE9E6; --bad-ink:#A3301F;
+  --info:#2A5DB0; --info-soft:#E7EEF9; --info-ink:#244F96;
+  --r-xs:8px; --r-sm:11px; --r-md:14px; --r-lg:18px; --r-xl:24px; --r-pill:999px;
+  --sh-1:0 1px 2px rgb(23 32 27/.05); --sh-2:0 2px 8px rgb(23 32 27/.06); --sh-3:0 16px 40px rgb(23 32 27/.18);
+  --ease:cubic-bezier(.2,.8,.2,1);
+  --cols:44px 50px minmax(0,1fr) 44px 52px 62px;
+}
+[data-accent="ink"]{--brand:#1C2024;--brand-press:#0F1214;--brand-soft:#ECEDEE;--brand-ink:#1C2024}
+[data-accent="indigo"]{--brand:#3A47B8;--brand-press:#2F3A99;--brand-soft:#E9EBFA;--brand-ink:#3440A8}
+[data-accent="navy"]{--brand:#1E3A5F;--brand-press:#162C49;--brand-soft:#E6EDF5;--brand-ink:#1E3A5F}
+[data-accent="terra"]{--brand:#A84A24;--brand-press:#8C3D1D;--brand-soft:#F7E8E0;--brand-ink:#953F1E}
+
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{font-family:var(--font);background:#E7E5DF;color:var(--ink);font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased;letter-spacing:-.012em}
+button,input,textarea,select{font:inherit;color:inherit;letter-spacing:inherit}
+button{background:none;border:0;cursor:pointer;text-align:inherit}
+input,textarea{outline:none}
+svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.n{font-variant-numeric:tabular-nums}
+[hidden]{display:none!important}
+:focus-visible{outline:2px solid var(--brand);outline-offset:2px;border-radius:8px}
+
+/* 무대 */
+.stage{min-height:100%;display:flex;gap:32px;justify-content:center;align-items:flex-start;padding:28px 20px}
+.phone{position:relative;width:390px;height:844px;flex-shrink:0;background:var(--bg);border-radius:50px;overflow:hidden;display:flex;flex-direction:column;
+  box-shadow:0 0 0 10px #121513,0 0 0 11px #30352F,0 40px 80px -20px rgb(0 0 0/.35)}
+body.bare{background:var(--bg)}
+body.bare .stage{padding:0;display:block}
+body.bare .phone{width:100vw;height:100vh;border-radius:0;box-shadow:none}
+body.bare .pn{display:none}
+@media (max-width:560px){.stage{padding:0;display:block}.phone{width:100vw;height:100dvh;border-radius:0;box-shadow:none}.pn{display:none}.sbar,.home{display:none}}
+
+/* 상태표시줄(목업 전용) */
+.sbar{height:47px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:6px 30px 0 36px;font-size:15.5px;font-weight:650;color:var(--ink);background:var(--bg)}
+.sbar .bt{width:25px;height:12px;border:1.5px solid currentColor;border-radius:4px;position:relative;opacity:.9}
+.sbar .bt::after{content:"";position:absolute;inset:1.5px 5px 1.5px 1.5px;background:currentColor;border-radius:1.5px}
+.home{position:absolute;bottom:8px;left:50%;width:134px;height:5px;border-radius:3px;background:var(--ink);transform:translateX(-50%);z-index:60;opacity:.85}
+
+/* 앱 바 */
+.ab{height:54px;flex-shrink:0;display:flex;align-items:center;gap:2px;padding:0 6px 0 12px;background:var(--bg)}
+.ab-t{display:inline-flex;align-items:center;gap:3px;height:44px;padding:0 6px;border-radius:12px;font-size:22px;font-weight:800;letter-spacing:-.035em;color:var(--ink);white-space:nowrap}
+.ab-t svg{width:18px;height:18px;color:var(--ink-3);stroke-width:2.2}
+.ab-t small{font-size:13px;font-weight:650;color:var(--ink-3);letter-spacing:-.01em;margin-left:6px}
+.ab-back{display:flex;align-items:center;gap:2px}
+.ab-back h1{font-size:19px;font-weight:800;letter-spacing:-.025em}
+.sp{flex:1}
+.ib{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;position:relative;color:var(--ink-2);transition:background .15s}
+.ib:active{background:var(--surface-3)}
+.ib svg{width:22px;height:22px}
+.bdg{position:absolute;top:6px;right:5px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--bad);color:#fff;font-size:11px;font-weight:800;display:grid;place-items:center;box-shadow:0 0 0 2px var(--bg);letter-spacing:0}
+.bdg.info{background:var(--info)}
+.bdg.warn{background:var(--warn)}
+
+/* 날짜 */
+.db{flex-shrink:0;display:flex;gap:8px;padding:2px 12px 10px;background:var(--bg)}
+.ds{flex:1;height:46px;border-radius:var(--r-md);background:var(--surface-3);display:grid;grid-template-columns:44px 1fr 44px;align-items:center}
+.ds .nv{height:46px;display:grid;place-items:center;color:var(--ink-2)}
+.ds .nv:active{color:var(--ink)}
+.ds-c{height:46px;display:flex;align-items:center;justify-content:center;gap:7px;font-size:16px;font-weight:750;letter-spacing:-.02em;white-space:nowrap}
+.ds-c svg{width:17px;height:17px;color:var(--ink-3)}
+.ti{font-size:11.5px;font-weight:750;color:var(--brand-ink);background:var(--brand-soft);border-radius:6px;padding:2px 6px;letter-spacing:0}
+.bt-today{height:46px;padding:0 15px;border-radius:var(--r-md);background:var(--brand);color:var(--on-brand);font-size:14px;font-weight:750;box-shadow:0 4px 12px color-mix(in srgb,var(--brand) 25%,transparent);white-space:nowrap}
+
+/* 본문 */
+.main{flex:1;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;padding-bottom:16px}
+.seg{background:var(--surface-3);border-radius:var(--r-md);padding:3px;display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:2px}
+.seg button{height:44px;border-radius:var(--r-sm);font-size:14px;font-weight:650;color:var(--ink-2);display:flex;align-items:center;justify-content:center;gap:5px;transition:background .15s,color .15s}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:var(--sh-1)}
+.seg.f4{margin:2px 12px 8px}
+.seg.f4 button{height:48px;flex-direction:column;gap:0;line-height:1.15;font-size:12px}
+.seg.f4 button b{font-size:17px;font-weight:800;color:var(--ink);letter-spacing:-.02em}
+.seg.f4 button.mon b{color:var(--warn-ink)}
+.seg.f4 button[aria-pressed="true"]{color:var(--ink)}
+.mx12{margin:0 12px 12px}
+
+.gh{display:grid;grid-template-columns:var(--cols);align-items:end;padding:8px 18px 6px 14px}
+.gh .l{grid-column:1/4;font-size:13px;font-weight:750;color:var(--ink-2);display:flex;align-items:center;gap:6px;white-space:nowrap}
+.gh .l small{font-weight:550;color:var(--ink-3)}
+.gh .l .mo{font-weight:750;color:var(--warn-ink)}
+.gh .c{font-size:11.5px;font-weight:650;color:var(--ink-3);text-align:center;white-space:nowrap}
+button.gh{width:100%;text-align:left;min-height:44px;align-items:center}
+button.gh svg{width:16px;height:16px;transition:transform .2s}
+button.gh[aria-expanded="false"] svg{transform:rotate(-90deg)}
+
+.lc{margin:0 12px 6px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--sh-1)}
+.bk{position:relative;display:grid;grid-template-columns:var(--cols);grid-template-rows:44px auto auto;padding:6px 6px 9px 2px;border-top:1px solid var(--line-2)}
+.bk:first-child{border-top:0}
+.bk .hit{position:absolute;inset:0;z-index:0;width:100%}
+.bk .hit:active{background:var(--surface-2)}
+.bk::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:0 3px 3px 0;background:var(--edge,transparent);z-index:2}
+.bk>*:not(.hit){position:relative;z-index:1}
+.bk .u,.bk .nm,.bk .mt,.bk .rq3{pointer-events:none}
+.ck{grid-row:1/-1;align-self:center;justify-self:center;width:44px;height:44px;display:grid;place-items:center}
+.ck .cc{width:26px;height:26px;border-radius:50%;border:2px solid #C3C7C0;display:grid;place-items:center;background:var(--surface);transition:all .2s var(--ease)}
+.ck svg{width:15px;height:15px;stroke-width:3;color:#fff;opacity:0;transform:scale(.4);transition:all .22s var(--ease)}
+.done .ck .cc{background:var(--ok);border-color:var(--ok);box-shadow:0 0 0 4px var(--ok-soft)}
+.done .ck svg{opacity:1;transform:none}
+.u{grid-row:1/-1;align-self:center;font-size:18px;font-weight:800;letter-spacing:-.03em;line-height:1.15;white-space:nowrap;overflow:hidden}
+.u.sm{font-size:14.5px;letter-spacing:-.04em}
+.u small{display:block;font-size:11px;font-weight:700;color:var(--warn-ink);letter-spacing:0;margin-top:2px}
+.nm{grid-column:3;grid-row:1;align-self:center;display:flex;align-items:center;gap:6px;min-width:0;font-size:16px;font-weight:700;white-space:nowrap;padding-left:2px}
+.nm .t{overflow:hidden;text-overflow:ellipsis}
+.tag{flex-shrink:0;font-size:10.5px;font-weight:750;border-radius:6px;padding:1px 5px;letter-spacing:0}
+.tag.rv{color:var(--info-ink);background:var(--info-soft)}
+.ppw{grid-column:4;grid-row:1;width:44px;height:44px;display:grid;place-items:center}
+.ppw input{width:40px;height:40px;border-radius:var(--r-sm);border:1px solid var(--line);background:var(--surface-2);text-align:center;font-size:16px;font-weight:800;color:var(--ink);-moz-appearance:textfield;padding:0;transition:border-color .15s,box-shadow .15s}
+.ppw input::-webkit-inner-spin-button{-webkit-appearance:none}
+.ppw input:focus{border-color:var(--brand);box-shadow:0 0 0 3px color-mix(in srgb,var(--brand) 20%,transparent);background:var(--surface)}
+.ppw input.over{border-color:var(--warn-line);background:var(--warn-soft);color:var(--warn-ink)}
+.ex{grid-column:5;grid-row:1;height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.15;font-size:15px;font-weight:750;white-space:nowrap}
+.ex span{display:flex;align-items:center;gap:2px}
+.ex svg{width:15px;height:15px;color:var(--ink-3);stroke-width:1.9}
+.ex small{font-size:11px;font-weight:600;color:var(--ink-3)}
+.ex small.w{color:var(--warn-ink);font-weight:750}
+.ex .cc2{font-size:12.5px;font-weight:800;background:var(--surface-3);border-radius:6px;padding:1px 6px;letter-spacing:.02em}
+.ad{grid-column:6;grid-row:1;width:62px;height:44px;display:grid;place-items:center}
+.pl{width:58px;height:40px;border-radius:var(--r-sm);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:14px;font-weight:800;line-height:1.1;white-space:nowrap}
+.pl small{font-size:10.5px;font-weight:650;opacity:.88}
+.pl.set{background:var(--warn-soft);color:var(--warn-ink)}
+.pl.ok{background:var(--ok-soft);color:var(--ok-ink)}
+.pl.tbd{background:var(--bad-soft);color:var(--bad-ink);font-size:12px}
+.pl.add{border:1.5px dashed var(--line);color:var(--ink-3);font-size:12px;font-weight:700}
+.pl.no{color:var(--ink-3);font-size:11.5px;font-weight:600}
+.pl.inf{background:var(--info-soft);color:var(--info-ink)}
+.mt{grid-column:3/7;grid-row:2;display:flex;align-items:center;gap:5px;min-width:0;font-size:12.5px;color:var(--ink-2);white-space:nowrap;padding:1px 4px 0 2px}
+.mt .ch{display:inline-flex;align-items:center;gap:5px;font-weight:600;flex-shrink:0}
+.mt .ch i{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.mt .sp2{color:var(--ink-4)}
+.mt .tm2{display:inline-flex;align-items:center;gap:3px}
+.mt .tm2 svg{width:13px;height:13px;color:var(--ink-3)}
+.rq3{grid-column:3/7;grid-row:3;display:flex;align-items:flex-start;gap:5px;font-size:12.5px;font-weight:650;color:var(--bad-ink);padding:3px 4px 0 2px;line-height:1.4;pointer-events:none}
+.rq3 svg{width:14px;height:14px;margin-top:2px;flex-shrink:0}
+.rq3 span{overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.mt .mo{margin-left:auto;padding-left:8px;font-weight:800;color:var(--warn-ink);flex-shrink:0;display:inline-flex;align-items:center;gap:3px}
+.mt .mo svg{width:14px;height:14px}
+.done .u,.done .nm .t{color:var(--ink-3)}
+.done .mt{opacity:.72}
+.lnk{display:flex;align-items:center;justify-content:center;gap:6px;height:44px;margin:10px 12px 0;border-radius:12px;color:var(--ink-2);font-size:13.5px;font-weight:650;border:1px dashed var(--line)}
+.lnk svg{width:17px;height:17px}
+
+/* 탭바 */
+.tb{flex-shrink:0;background:var(--surface);border-top:1px solid var(--line);display:grid;grid-auto-flow:column;grid-auto-columns:1fr;padding:6px 4px 30px}
+.tb button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;height:52px;font-size:11.5px;font-weight:650;color:var(--ink-3);position:relative;letter-spacing:-.01em}
+.tb .pi{width:56px;height:30px;border-radius:15px;display:grid;place-items:center;transition:background .2s}
+.tb svg{width:22px;height:22px;stroke-width:1.85}
+.tb button[aria-current="page"]{color:var(--brand-ink)}
+.tb button[aria-current="page"] .pi{background:var(--brand-soft)}
+.tb .bdg{top:1px;right:auto;left:calc(50% + 8px);box-shadow:0 0 0 2px var(--surface)}
+
+/* 시트 */
+.scrim{position:absolute;inset:0;background:rgb(16 20 18/.42);z-index:40;opacity:0;pointer-events:none;transition:opacity .2s}
+.scrim.on{opacity:1;pointer-events:auto}
+.sheet{position:absolute;left:0;right:0;bottom:0;z-index:41;max-height:92%;background:var(--surface);border-radius:24px 24px 0 0;display:flex;flex-direction:column;transform:translateY(102%);transition:transform .3s var(--ease);box-shadow:var(--sh-3)}
+.sheet.on{transform:none}
+.sh-g{width:40px;height:5px;border-radius:3px;background:var(--line);margin:8px auto 2px;flex-shrink:0}
+.sh-h{display:flex;align-items:center;gap:10px;padding:6px 8px 10px 18px;min-height:58px;flex-shrink:0}
+.sh-h h3{font-size:19px;font-weight:800;letter-spacing:-.025em;line-height:1.25;min-width:0}
+.sh-h h3 small{display:block;font-size:12.5px;font-weight:600;color:var(--ink-3);letter-spacing:-.01em}
+.sh-b{overflow-y:auto;padding:0 16px 14px}
+.sh-f{display:flex;gap:8px;padding:10px 16px 30px;border-top:1px solid var(--line-2);flex-shrink:0;background:var(--surface)}
+.btn{height:52px;border-radius:var(--r-md);font-size:15.5px;font-weight:750;display:inline-flex;align-items:center;justify-content:center;gap:7px;background:var(--surface-3);color:var(--ink);flex:1;padding:0 14px;white-space:nowrap;transition:transform .1s}
+.btn:active{transform:scale(.98)}
+.btn svg{width:19px;height:19px}
+.btn.pri{background:var(--brand);color:var(--on-brand)}
+.btn.line{background:var(--surface);border:1px solid var(--line)}
+.btn.sm{height:44px;border-radius:12px;font-size:14px}
+.btn.okb{background:var(--ok-soft);color:var(--ok-ink)}
+.tg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tile{background:var(--surface-2);border:1px solid var(--line-2);border-radius:var(--r-md);padding:10px 12px;min-height:64px}
+.tile small{display:block;font-size:12px;font-weight:650;color:var(--ink-3)}
+.tile b{display:block;font-size:15px;font-weight:750;line-height:1.35;margin-top:1px}
+.tile em{display:block;font-style:normal;font-size:12.5px;color:var(--ink-2)}
+.tile.ppx{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.tile.ppx input{width:52px;height:44px;border-radius:12px;border:1px solid var(--line);text-align:center;font-size:18px;font-weight:800;background:var(--surface)}
+.box{border-radius:var(--r-md);padding:12px 14px;margin-top:10px;display:flex;gap:10px;align-items:center;font-size:14px}
+.box svg{width:19px;height:19px;flex-shrink:0}
+.box.due{background:var(--warn-soft);color:var(--warn-ink)}
+.box.due .amt{font-size:20px;font-weight:800;letter-spacing:-.02em;display:block;line-height:1.2}
+.box.due .btn{flex:0 0 auto;height:44px;background:var(--brand);color:var(--on-brand);font-size:14px}
+.box.req{background:var(--bad-soft);color:var(--bad-ink);font-weight:650;align-items:flex-start}
+.box.ok{background:var(--ok-soft);color:var(--ok-ink);font-weight:650}
+.lab{font-size:12.5px;font-weight:700;color:var(--ink-3);margin:16px 2px 8px}
+.ta{width:100%;min-height:76px;border-radius:12px;border:1px solid var(--line);background:var(--surface-2);padding:10px 12px;font-size:15px;resize:none}
+.ta:focus,.in:focus{border-color:var(--brand);background:var(--surface)}
+.in{width:100%;height:48px;border-radius:12px;border:1px solid var(--line);background:var(--surface-2);padding:0 12px;font-size:16px}
+.acts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.call{width:44px;height:44px;border-radius:50%;background:var(--brand-soft);color:var(--brand-ink);display:grid;place-items:center;flex-shrink:0}
+.x{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;color:var(--ink-3);flex-shrink:0}
+.chn{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:650;color:var(--ink-2)}
+.chn i{width:7px;height:7px;border-radius:50%}
+.frow{display:flex;align-items:center;justify-content:space-between;min-height:62px;border-bottom:1px solid var(--line-2);gap:10px}
+.frow b{display:block;font-size:15.5px}.frow small{font-size:12.5px;color:var(--ink-3)}
+.stp{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:12px;height:44px;background:var(--surface);flex-shrink:0}
+.stp button{width:44px;height:44px;display:grid;place-items:center;color:var(--brand-ink)}
+.stp button svg{width:18px;height:18px;stroke-width:2.4}
+.stp output{min-width:30px;text-align:center;font-size:17px;font-weight:800}
+.tot{display:flex;justify-content:space-between;align-items:baseline;padding:14px 2px 2px;font-weight:750}
+.tot b{font-size:24px;font-weight:800;letter-spacing:-.02em}
+.chs{display:flex;flex-wrap:wrap;gap:6px}
+.co{height:44px;min-width:62px;padding:0 13px;border-radius:12px;background:var(--surface-3);font-size:14.5px;font-weight:700;transition:background .15s,color .15s}
+.co[aria-pressed="true"]{background:var(--brand);color:var(--on-brand)}
+.co:disabled{opacity:.38;text-decoration:line-through}
+.swr{display:flex;align-items:center;justify-content:space-between;min-height:56px;font-weight:700;margin-top:8px}
+.sw{width:52px;height:32px;border-radius:16px;background:var(--line);position:relative;transition:background .2s;flex-shrink:0}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:26px;height:26px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgb(0 0 0/.2);transition:transform .2s var(--ease)}
+.sw[aria-checked="true"]{background:var(--ok)}.sw[aria-checked="true"]::after{transform:translateX(20px)}
+.swb{width:60px;height:44px;display:grid;place-items:center}
+
+/* 토스트 */
+.toast{position:absolute;left:14px;right:14px;bottom:96px;z-index:50;background:var(--ink);color:#fff;border-radius:14px;padding:8px 8px 8px 16px;min-height:52px;display:flex;align-items:center;gap:10px;font-size:14.5px;font-weight:600;opacity:0;transform:translateY(10px);transition:all .22s var(--ease);pointer-events:none}
+.toast.on{opacity:1;transform:none;pointer-events:auto}
+.toast span{flex:1}
+.toast button{height:36px;padding:0 12px;border-radius:10px;font-weight:800;color:#BFE6CB;background:rgb(255 255 255/.08)}
+.toast svg{width:18px;height:18px;color:#8FD3A6}
+
+/* 카드·목록 공통 */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);margin:0 12px 12px;box-shadow:var(--sh-1)}
+.pad{padding:14px 16px}
+.kv{display:flex;align-items:baseline;justify-content:space-between}
+.kv small{font-size:12.5px;color:var(--ink-3);font-weight:650}
+.big{font-size:24px;font-weight:800;letter-spacing:-.03em}
+.big i{font-style:normal;font-size:14px;color:var(--ink-3);font-weight:650;margin-left:2px}
+.trk{height:8px;border-radius:4px;background:var(--surface-3);overflow:hidden;display:flex;margin:10px 0 8px}
+.trk i{height:100%}
+.lgd{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--ink-2);font-weight:600}
+.lgd span{display:inline-flex;align-items:center;gap:5px}
+.lgd i{width:8px;height:8px;border-radius:50%}
+.sec{font-size:12.5px;font-weight:750;color:var(--ink-3);margin:16px 18px 7px;display:flex;align-items:center;gap:6px}
+.sec b{color:var(--ink-2)}
+.lr{display:grid;grid-template-columns:62px minmax(0,1fr) auto;align-items:center;gap:6px;min-height:62px;padding:0 12px 0 14px;border-top:1px solid var(--line-2);width:100%;text-align:left}
+.lr:first-child{border-top:0}
+.lr .u2{font-size:17px;font-weight:800;letter-spacing:-.03em;white-space:nowrap}
+.lr .m2{min-width:0}
+.lr .m2 b{display:block;font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lr .m2 small{display:block;font-size:12.5px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pill{height:28px;padding:0 10px;border-radius:9px;font-size:12.5px;font-weight:750;display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+.pill svg{width:14px;height:14px}
+.pill.need{background:var(--bad-soft);color:var(--bad-ink)}
+.pill.done{background:var(--info-soft);color:var(--info-ink)}
+.pill.insp{background:var(--ok-soft);color:var(--ok-ink)}
+.team{font-size:11.5px;font-weight:750;background:var(--surface-3);color:var(--ink-2);border-radius:6px;padding:1px 6px;margin-right:4px}
+.rdy{height:44px;padding:0 12px;border-radius:12px;border:1px solid var(--line);font-size:13.5px;font-weight:750;display:inline-flex;align-items:center;gap:5px;background:var(--surface);white-space:nowrap;color:var(--ink-2)}
+.rdy svg{width:16px;height:16px}
+.rdy[aria-pressed="true"]{background:var(--ok-soft);border-color:var(--ok-soft);color:var(--ok-ink)}
+.tm{font-size:17px;font-weight:800;letter-spacing:-.02em}
+.tm.tbd{font-size:13px;color:var(--bad-ink)}
+
+/* 예약 */
+.rvn{display:flex;align-items:center;gap:6px;margin:0 12px 10px}
+.rvn .per{flex:1;text-align:center;font-size:15px;font-weight:750}
+.rvn .ib{background:var(--surface);border:1px solid var(--line)}
+.gw{margin:0 12px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);overflow:auto;max-height:470px;box-shadow:var(--sh-1)}
+.rg{display:grid;grid-template-columns:58px repeat(7,52px);min-width:max-content;position:relative}
+.rg>div{height:48px;border-top:1px solid var(--line-2);border-left:1px solid var(--line-2)}
+.rg .h{position:sticky;top:0;z-index:3;background:var(--surface);border-top:0;height:46px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:11px;font-weight:650;color:var(--ink-3);line-height:1.2}
+.rg .h b{font-size:14px;font-weight:800;color:var(--ink)}
+.rg .h.sat b{color:var(--info-ink)}.rg .h.sun b{color:var(--bad-ink)}
+.rg .h.td{background:var(--brand-soft)}.rg .h.td b{color:var(--brand-ink)}
+.rg .rl{position:sticky;left:0;z-index:2;background:var(--surface);border-left:0;display:grid;place-items:center;font-size:13px;font-weight:800;white-space:nowrap}
+.rg .h.rl{z-index:4}
+.rg .c.td{background:color-mix(in srgb,var(--brand-soft) 50%,transparent)}
+.bar{position:relative;z-index:1;margin:6px 2px;height:36px!important;border:0!important;border-radius:8px;border-left:3px solid var(--c)!important;background:color-mix(in srgb,var(--c) 12%,var(--surface));font-size:11.5px;font-weight:650;display:flex;align-items:center;padding:0 6px;white-space:nowrap;overflow:hidden;color:var(--ink)}
+.bar.blk{--c:var(--ink-4);background:repeating-linear-gradient(135deg,var(--surface-3) 0 5px,var(--surface) 5px 10px);color:var(--ink-3)}
+.hint{font-size:12.5px;color:var(--ink-3);margin:10px 16px 0;display:flex;gap:6px;line-height:1.5}
+.hint svg{width:15px;height:15px;margin-top:2px}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin:0 12px}
+.cal .w{text-align:center;font-size:11.5px;font-weight:650;color:var(--ink-3);padding:2px 0}
+.cal .d{height:62px;border-radius:12px;border:1px solid var(--line-2);padding:6px 7px;display:flex;flex-direction:column;justify-content:space-between;background:var(--surface)}
+.cal .d.l1{background:color-mix(in srgb,var(--brand) 12%,var(--surface));border-color:transparent}
+.cal .d.l2{background:color-mix(in srgb,var(--brand) 26%,var(--surface));border-color:transparent}
+.cal .d.full{background:var(--brand);border-color:var(--brand)}
+.cal .d.full b,.cal .d.full small{color:var(--on-brand)}
+.cal .d b{font-size:13px;font-weight:750}
+.cal .d small{font-size:11px;font-weight:650;color:var(--ink-2)}
+.cal .d.td{outline:2.5px solid var(--warn);outline-offset:-2.5px}
+.cal .d.pad{visibility:hidden}
+
+/* 더보기 */
+.pf{display:flex;align-items:center;gap:12px;margin:4px 12px 4px;padding:14px 16px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg)}
+.av{width:44px;height:44px;border-radius:50%;background:var(--brand-soft);color:var(--brand-ink);display:grid;place-items:center;font-weight:800;font-size:16px;flex-shrink:0}
+.pf b{display:block;font-size:16px}.pf small{font-size:12.5px;color:var(--ink-3)}
+.ml{margin:0 12px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden}
+.mi{display:flex;align-items:center;gap:12px;min-height:54px;width:100%;padding:0 12px 0 14px;border-top:1px solid var(--line-2);font-size:15px;font-weight:650;color:var(--ink);text-align:left}
+.mi:first-child{border-top:0}
+.mi .ico{width:34px;height:34px;border-radius:10px;background:var(--surface-3);color:var(--ink-2);display:grid;place-items:center;flex-shrink:0}
+.mi .ico svg{width:19px;height:19px}
+.mi .r{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--ink-3);white-space:nowrap}
+.mi .r .cnt{height:20px;padding:0 7px;border-radius:10px;color:#fff;font-size:11.5px;font-weight:800;display:inline-flex;align-items:center}
+.mi .r .cnt.w{background:var(--warn)}.mi .r .cnt.b{background:var(--bad)}
+.mi .r svg{width:18px;height:18px;color:var(--ink-4)}
+.mi.dim{color:var(--ink-2)}
+
+/* 플러스 */
+.hero{margin:4px 12px 14px;padding:18px;border-radius:20px;background:var(--brand);color:var(--on-brand)}
+.hero .k{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:800;background:rgb(255 255 255/.16);border-radius:7px;padding:3px 8px;margin-bottom:10px}
+.hero .k svg{width:14px;height:14px}
+.hero b{display:block;font-size:20px;font-weight:800;letter-spacing:-.03em;line-height:1.3}
+.hero p{font-size:13.5px;opacity:.86;margin-top:4px;line-height:1.5}
+.pcd{display:flex;gap:12px;align-items:flex-start;width:calc(100% - 24px);margin:0 12px 10px;padding:14px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);text-align:left}
+.pcd .pic{width:44px;height:44px;border-radius:14px;background:var(--brand-soft);color:var(--brand-ink);display:grid;place-items:center;flex-shrink:0}
+.pcd .pic svg{width:22px;height:22px}
+.pcd .t{flex:1;min-width:0}
+.pcd .t small{font-size:12px;font-weight:650;color:var(--ink-3)}
+.pcd .t b{display:block;font-size:16.5px;font-weight:800;letter-spacing:-.02em}
+.pcd .t p{font-size:13.5px;color:var(--ink-2);margin-top:3px;line-height:1.5}
+.pcd>svg{width:18px;height:18px;color:var(--ink-4);align-self:center}
+.stc{display:inline-flex;align-items:center;height:24px;padding:0 9px;border-radius:7px;font-size:12px;font-weight:750;margin-top:9px}
+.stc.on{background:var(--ok-soft);color:var(--ok-ink)}.stc.trial{background:var(--info-soft);color:var(--info-ink)}.stc.req{background:var(--warn-soft);color:var(--warn-ink)}.stc.can{background:var(--brand-soft);color:var(--brand-ink)}
+.agree{display:flex;gap:10px;align-items:flex-start;min-height:44px;font-size:13.5px;color:var(--ink-2);margin-top:14px}
+.agree input{width:22px;height:22px;accent-color:var(--brand);flex-shrink:0;margin-top:1px}
+table.mxt{width:100%;border-collapse:collapse;font-size:12.5px}
+.mxt th,.mxt td{border-top:1px solid var(--line-2);padding:9px 2px;text-align:center}
+.mxt th{border-top:0;font-size:11.5px;color:var(--ink-3);font-weight:650}
+.mxt td:first-child,.mxt th:first-child{text-align:left;padding-left:14px;font-weight:750}
+.dt{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:7px;font-size:11.5px;font-weight:800}
+.dt.on{background:var(--ok-soft);color:var(--ok-ink)}.dt.trial{background:var(--info-soft);color:var(--info-ink)}.dt.req{background:var(--warn-soft);color:var(--warn-ink)}.dt.off{color:var(--ink-4)}
+.rq2{padding:12px 14px;border-top:1px solid var(--line-2)}
+.rq2:first-child{border-top:0}
+.rq2 .top{display:flex;align-items:center;gap:8px;font-weight:750}
+.rq2 .top small{margin-left:auto;font-size:12px;color:var(--ink-3);font-weight:600}
+.rq2 p{font-size:13px;color:var(--ink-2);margin:3px 0 8px}
+.rq2 select{width:100%;height:44px;border-radius:12px;border:1px solid var(--line);background:var(--surface-2);padding:0 10px;font-weight:700}
+
+/* 모든 열 */
+.atw{overflow:auto;border:1px solid var(--line);border-radius:14px}
+table.at{border-collapse:collapse;font-size:13px;min-width:860px}
+.at th{position:sticky;top:0;background:var(--surface-3);font-size:11.5px;font-weight:700;color:var(--ink-2);padding:8px;text-align:left;white-space:nowrap}
+.at td{border-top:1px solid var(--line-2);padding:9px 8px;white-space:nowrap}
+.at td:first-child,.at th:first-child{position:sticky;left:0;background:var(--surface);font-weight:800}
+.at th:first-child{background:var(--surface-3)}
+
+/* 스태프 링크 */
+.lng{display:flex;gap:2px;background:var(--surface-3);border-radius:14px;padding:2px;margin-right:6px}
+.lng button{min-width:46px;height:44px;border-radius:12px;font-size:14px;font-weight:800;color:var(--ink-2)}
+.lng button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:var(--sh-1)}
+.note{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;color:var(--ink-3);margin:10px 16px 0;line-height:1.5}
+.note svg{width:15px;height:15px;margin-top:2px;flex-shrink:0}
+
+/* 설명 패널 */
+.pn{width:380px;flex-shrink:0;background:#fff;border-radius:22px;padding:20px 20px 22px;font-size:13.5px;line-height:1.6;color:#4B544E;box-shadow:0 8px 28px rgb(0 0 0/.07);position:sticky;top:28px;max-height:calc(100vh - 56px);overflow:auto}
+.pn h1{font-size:19px;color:#17201B;letter-spacing:-.03em;line-height:1.35}
+.pn h2{font-size:13px;color:#17201B;margin:16px 0 7px;letter-spacing:-.01em}
+.pn .row{display:flex;gap:6px;flex-wrap:wrap}
+.pn .row button{height:36px;padding:0 12px;border-radius:999px;border:1px solid #E4E1D9;font-weight:700;font-size:12.5px;display:inline-flex;align-items:center;gap:6px}
+.pn .row button i{width:12px;height:12px;border-radius:50%}
+.pn .row button[aria-pressed="true"]{background:#17201B;color:#fff;border-color:#17201B}
+.pn ul{padding-left:18px}
+.pn li{margin:3px 0}
+.pn .cnt{display:flex;align-items:center;gap:10px;background:#F6F5F1;border-radius:14px;padding:10px 12px}
+.pn .cnt b{font-size:26px;color:#17201B;min-width:30px}
+.pn .cnt button{margin-left:auto;height:34px;padding:0 12px;border-radius:9px;border:1px solid #E4E1D9;background:#fff;font-weight:700}
+.pn .lg{font-size:12px;color:#6B736D;min-height:18px;margin-top:4px}
+
+/* QA 모드: 미션 띠 */
+.qab{flex-shrink:0;display:flex;align-items:center;gap:8px;padding:8px 8px 8px 14px;background:var(--ink);color:#fff;min-height:52px}
+.qab b{font-size:13.5px;font-weight:750;line-height:1.35;flex:1;min-width:0}
+.qab b small{display:block;font-size:11.5px;font-weight:600;opacity:.7}
+.qab a{height:40px;padding:0 12px;border-radius:11px;background:#fff;color:var(--ink);font-size:13px;font-weight:800;display:inline-flex;align-items:center;text-decoration:none;white-space:nowrap}
+body.qa .pn{display:none}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<svg style="display:none" aria-hidden="true"><symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" /> <path d="m21 21-4.3-4.3" /></symbol><symbol id="i-message-square-text" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /> <path d="M13 8H7" /> <path d="M17 12H7" /></symbol><symbol id="i-bed-double" viewBox="0 0 24 24"><path d="M2 20v-8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v8" /> <path d="M4 10V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4" /> <path d="M12 4v6" /> <path d="M2 18h20" /></symbol><symbol id="i-calendar-days" viewBox="0 0 24 24"><path d="M8 2v4" /> <path d="M16 2v4" /> <rect width="18" height="18" x="3" y="4" rx="2" /> <path d="M3 10h18" /> <path d="M8 14h.01" /> <path d="M12 14h.01" /> <path d="M16 14h.01" /> <path d="M8 18h.01" /> <path d="M12 18h.01" /> <path d="M16 18h.01" /></symbol><symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6" /></symbol><symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6" /></symbol><symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" /></symbol><symbol id="i-list-checks" viewBox="0 0 24 24"><path d="m3 17 2 2 4-4" /> <path d="m3 7 2 2 4-4" /> <path d="M13 6h8" /> <path d="M13 12h8" /> <path d="M13 18h8" /></symbol><symbol id="i-calendar-range" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="4" rx="2" /> <path d="M16 2v4" /> <path d="M3 10h18" /> <path d="M8 2v4" /> <path d="M17 14h-6" /> <path d="M13 18H7" /> <path d="M7 14h.01" /> <path d="M17 18h.01" /></symbol><symbol id="i-flame" viewBox="0 0 24 24"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" /></symbol><symbol id="i-ellipsis" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1" /> <circle cx="19" cy="12" r="1" /> <circle cx="5" cy="12" r="1" /></symbol><symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" /></symbol><symbol id="i-dog" viewBox="0 0 24 24"><path d="M11.25 16.25h1.5L12 17z" /> <path d="M16 14v.5" /> <path d="M4.42 11.247A13.152 13.152 0 0 0 4 14.556C4 18.728 7.582 21 12 21s8-2.272 8-6.444a11.702 11.702 0 0 0-.493-3.309" /> <path d="M8 14v.5" /> <path d="M8.5 8.5c-.384 1.05-1.083 2.028-2.344 2.5-1.931.722-3.576-.297-3.656-1-.113-.994 1.177-6.53 4-7 1.923-.321 3.651.845 3.651 2.235A7.497 7.497 0 0 1 14 5.277c0-1.39 1.844-2.598 3.767-2.277 2.823.47 4.113 6.006 4 7-.08.703-1.725 1.722-3.656 1-1.261-.472-1.855-1.45-2.239-2.5" /></symbol><symbol id="i-phone" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" /></symbol><symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18" /> <path d="m6 6 12 12" /></symbol><symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14" /> <path d="M12 5v14" /></symbol><symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14" /></symbol><symbol id="i-banknote" viewBox="0 0 24 24"><rect width="20" height="12" x="2" y="6" rx="2" /> <circle cx="12" cy="12" r="2" /> <path d="M6 12h.01M18 12h.01" /></symbol><symbol id="i-circle-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /> <line x1="12" x2="12" y1="8" y2="12" /> <line x1="12" x2="12.01" y1="16" y2="16" /></symbol><symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /> <circle cx="9" cy="7" r="4" /> <path d="M22 21v-2a4 4 0 0 0-3-3.87" /> <path d="M16 3.13a4 4 0 0 1 0 7.75" /></symbol><symbol id="i-coffee" viewBox="0 0 24 24"><path d="M10 2v2" /> <path d="M14 2v2" /> <path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1" /> <path d="M6 2v2" /></symbol><symbol id="i-car" viewBox="0 0 24 24"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2" /> <circle cx="7" cy="17" r="2" /> <path d="M9 17h6" /> <circle cx="17" cy="17" r="2" /></symbol><symbol id="i-package" viewBox="0 0 24 24"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z" /> <path d="M12 22V12" /> <path d="m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7" /> <path d="m7.5 4.27 9 5.15" /></symbol><symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /> <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" /> <path d="M2 12h20" /></symbol><symbol id="i-key-round" viewBox="0 0 24 24"><path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z" /> <circle cx="16.5" cy="7.5" r=".5" fill="currentColor" /></symbol><symbol id="i-tent" viewBox="0 0 24 24"><path d="M3.5 21 14 3" /> <path d="M20.5 21 10 3" /> <path d="M15.5 21 12 15l-3.5 6" /> <path d="M2 21h20" /></symbol><symbol id="i-store" viewBox="0 0 24 24"><path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7" /> <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" /> <path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4" /> <path d="M2 7h20" /> <path d="M22 7v3a2 2 0 0 1-2 2a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 4 12a2 2 0 0 1-2-2V7" /></symbol><symbol id="i-wallet" viewBox="0 0 24 24"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1" /> <path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4" /></symbol><symbol id="i-receipt" viewBox="0 0 24 24"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z" /> <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8" /> <path d="M12 17.5v-11" /></symbol><symbol id="i-calculator" viewBox="0 0 24 24"><rect width="16" height="20" x="4" y="2" rx="2" /> <line x1="8" x2="16" y1="6" y2="6" /> <line x1="16" x2="16" y1="14" y2="18" /> <path d="M16 10h.01" /> <path d="M12 10h.01" /> <path d="M8 10h.01" /> <path d="M12 14h.01" /> <path d="M8 14h.01" /> <path d="M12 18h.01" /> <path d="M8 18h.01" /></symbol><symbol id="i-chart-line" viewBox="0 0 24 24"><path d="M3 3v16a2 2 0 0 0 2 2h16" /> <path d="m19 9-5 5-4-4-3 3" /></symbol><symbol id="i-star" viewBox="0 0 24 24"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z" /></symbol><symbol id="i-megaphone" viewBox="0 0 24 24"><path d="m3 11 18-5v12L3 14v-3z" /> <path d="M11.6 16.8a3 3 0 1 1-5.8-1.6" /></symbol><symbol id="i-tag" viewBox="0 0 24 24"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z" /> <circle cx="7.5" cy="7.5" r=".5" fill="currentColor" /></symbol><symbol id="i-settings" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" /> <circle cx="12" cy="12" r="3" /></symbol><symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" /> <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" /></symbol><symbol id="i-log-out" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /> <polyline points="16 17 21 12 16 7" /> <line x1="21" x2="9" y1="12" y2="12" /></symbol><symbol id="i-circle-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /> <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" /> <path d="M12 17h.01" /></symbol><symbol id="i-history" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /> <path d="M3 3v5h5" /> <path d="M12 7v5l4 2" /></symbol><symbol id="i-zap" viewBox="0 0 24 24"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z" /></symbol><symbol id="i-printer" viewBox="0 0 24 24"><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" /> <path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6" /> <rect x="6" y="14" width="12" height="8" rx="1" /></symbol><symbol id="i-refresh-cw" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" /> <path d="M21 3v5h-5" /> <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" /> <path d="M8 16H3v5" /></symbol><symbol id="i-arrow-left" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7" /> <path d="M19 12H5" /></symbol><symbol id="i-columns-3" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2" /> <path d="M9 3v18" /> <path d="M15 3v18" /></symbol><symbol id="i-languages" viewBox="0 0 24 24"><path d="m5 8 6 6" /> <path d="m4 14 6-6 2-3" /> <path d="M2 5h12" /> <path d="M7 2h1" /> <path d="m22 22-5-10-5 10" /> <path d="M14 18h6" /></symbol><symbol id="i-sparkles" viewBox="0 0 24 24"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z" /> <path d="M20 3v4" /> <path d="M22 5h-4" /> <path d="M4 17v2" /> <path d="M5 18H3" /></symbol><symbol id="i-spray-can" viewBox="0 0 24 24"><path d="M3 3h.01" /> <path d="M7 5h.01" /> <path d="M11 7h.01" /> <path d="M3 7h.01" /> <path d="M7 9h.01" /> <path d="M3 11h.01" /> <rect width="4" height="4" x="15" y="5" /> <path d="m19 9 2 2v10c0 .6-.4 1-1 1h-6c-.6 0-1-.4-1-1V11l2-2" /> <path d="m13 14 8-2" /> <path d="m13 19 8-2" /></symbol><symbol id="i-clipboard-list" viewBox="0 0 24 24"><rect width="8" height="4" x="8" y="2" rx="1" ry="1" /> <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /> <path d="M12 11h4" /> <path d="M12 16h4" /> <path d="M8 11h.01" /> <path d="M8 16h.01" /></symbol><symbol id="i-notebook-pen" viewBox="0 0 24 24"><path d="M13.4 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7.4" /> <path d="M2 6h4" /> <path d="M2 10h4" /> <path d="M2 14h4" /> <path d="M2 18h4" /> <path d="M21.378 5.626a1 1 0 1 0-3.004-3.004l-5.01 5.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z" /></symbol><symbol id="i-calendar-check" viewBox="0 0 24 24"><path d="M8 2v4" /> <path d="M16 2v4" /> <rect width="18" height="18" x="3" y="4" rx="2" /> <path d="M3 10h18" /> <path d="m9 16 2 2 4-4" /></symbol><symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" /> <path d="M12 2v2" /> <path d="M12 20v2" /> <path d="m4.93 4.93 1.41 1.41" /> <path d="m17.66 17.66 1.41 1.41" /> <path d="M2 12h2" /> <path d="M20 12h2" /> <path d="m6.34 17.66-1.41 1.41" /> <path d="m19.07 4.93-1.41 1.41" /></symbol><symbol id="i-moon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" /></symbol><symbol id="i-shield-check" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /> <path d="m9 12 2 2 4-4" /></symbol><symbol id="i-messages-square" viewBox="0 0 24 24"><path d="M14 9a2 2 0 0 1-2 2H6l-4 4V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2z" /> <path d="M18 9h2a2 2 0 0 1 2 2v11l-4-4h-6a2 2 0 0 1-2-2v-1" /></symbol><symbol id="i-trending-up" viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17" /> <polyline points="16 7 22 7 22 13" /></symbol><symbol id="i-user-round" viewBox="0 0 24 24"><circle cx="12" cy="8" r="5" /> <path d="M20 21a8 8 0 0 0-16 0" /></symbol><symbol id="i-lock" viewBox="0 0 24 24"><rect width="18" height="11" x="3" y="11" rx="2" ry="2" /> <path d="M7 11V7a5 5 0 0 1 10 0v4" /></symbol><symbol id="i-map-pin" viewBox="0 0 24 24"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" /> <circle cx="12" cy="10" r="3" /></symbol><symbol id="i-bell" viewBox="0 0 24 24"><path d="M10.268 21a2 2 0 0 0 3.464 0" /> <path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326" /></symbol><symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /> <polyline points="12 6 12 12 16 14" /></symbol><symbol id="i-external-link" viewBox="0 0 24 24"><path d="M15 3h6v6" /> <path d="M10 14 21 3" /> <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /></symbol><symbol id="i-hand-coins" viewBox="0 0 24 24"><path d="M11 15h2a2 2 0 1 0 0-4h-3c-.6 0-1.1.2-1.4.6L3 17" /> <path d="m7 21 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.75-2.91l-4.2 3.9" /> <path d="m2 16 6 6" /> <circle cx="16" cy="9" r="2.9" /> <circle cx="6" cy="5" r="3" /></symbol><symbol id="i-undo-2" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5" /> <path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11" /></symbol><symbol id="i-sliders-horizontal" viewBox="0 0 24 24"><line x1="21" x2="14" y1="4" y2="4" /> <line x1="10" x2="3" y1="4" y2="4" /> <line x1="21" x2="12" y1="12" y2="12" /> <line x1="8" x2="3" y1="12" y2="12" /> <line x1="21" x2="16" y1="20" y2="20" /> <line x1="12" x2="3" y1="20" y2="20" /> <line x1="14" x2="14" y1="2" y2="6" /> <line x1="8" x2="8" y1="10" y2="14" /> <line x1="16" x2="16" y1="18" y2="22" /></symbol><symbol id="i-building-2" viewBox="0 0 24 24"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z" /> <path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2" /> <path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2" /> <path d="M10 6h4" /> <path d="M10 10h4" /> <path d="M10 14h4" /> <path d="M10 18h4" /></symbol><symbol id="i-circle-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /> <path d="m9 12 2 2 4-4" /></symbol><symbol id="i-circle-dashed" viewBox="0 0 24 24"><path d="M10.1 2.182a10 10 0 0 1 3.8 0" /> <path d="M13.9 21.818a10 10 0 0 1-3.8 0" /> <path d="M17.609 3.721a10 10 0 0 1 2.69 2.7" /> <path d="M2.182 13.9a10 10 0 0 1 0-3.8" /> <path d="M20.279 17.609a10 10 0 0 1-2.7 2.69" /> <path d="M21.818 10.1a10 10 0 0 1 0 3.8" /> <path d="M3.721 6.391a10 10 0 0 1 2.7-2.69" /> <path d="M6.391 20.279a10 10 0 0 1-2.69-2.7" /></symbol><symbol id="i-badge-check" viewBox="0 0 24 24"><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z" /> <path d="m9 12 2 2 4-4" /></symbol><symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14" /> <path d="m12 5 7 7-7 7" /></symbol><symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /> <path d="M12 16v-4" /> <path d="M12 8h.01" /></symbol></svg>
+
+<div class="stage">
+ <div class="phone" id="ph">
+  <div class="sbar"><span class="n">9:41</span><span class="bt"></span></div>
+  <div class="qab" id="qab" hidden></div>
+  <header class="ab" id="ab"></header>
+  <div class="db" id="db"></div>
+  <main class="main" id="main"></main>
+  <nav class="tb" id="tb" aria-label="주 메뉴"></nav>
+  <div class="scrim" id="scrim"></div>
+  <div class="sheet" id="sheet" role="dialog" aria-modal="true"></div>
+  <div class="toast" id="toast" role="status"><svg class="i"><use href="#i-circle-check"/></svg><span id="tt"></span><button id="tu" hidden>되돌리기</button></div>
+  <div class="home"></div>
+ </div>
+
+ <aside class="pn" id="pn">
+  <h1>폰 프로토타입 v3<br><span style="font-weight:650;color:#6B736D;font-size:15px">1안 포레스트 · 범용 구조</span></h1>
+  <h2>업종 (같은 화면이 업종에 맞게 바뀜)</h2>
+  <div class="row" id="cP"></div>
+  <h2>브랜드 색 (한 칸만 바뀜)</h2>
+  <div class="row" id="cA"></div>
+  <h2>보는 사람</h2>
+  <div class="row" id="cR"></div>
+  <h2>화면</h2>
+  <div class="row" id="cM"></div>
+  <h2>누른 횟수</h2>
+  <div class="cnt"><span>탭</span><b class="n" id="tapN">0</b><button id="tapZ">0으로</button></div>
+  <div class="lg" id="tapL"></div>
+  <h2>해 볼 것</h2>
+  <ul>
+   <li>동그라미 = 입실 1탭, 아래 알림에서 <b>되돌리기</b></li>
+   <li>줄(이름·아래 줄) 누르기 → 예약 상세. 받을 돈이 있으면 <b>현장기록 받기</b> 바로</li>
+   <li>인원 칸에 숫자 입력 → 칸을 벗어날 때 <b>1번만 저장</b></li>
+   <li>BBQ 칸 → 시간·자리 시트</li>
+   <li>날짜 ‹ › → '오늘로' 버튼이 나타남</li>
+   <li>더보기 → 플러스(부가기능), 본사는 신청 관리</li>
+  </ul>
+  <h2>이번 판에서 다시 잡은 것</h2>
+  <ul>
+   <li>바탕은 중립(미색·먹색), <b>브랜드 색은 한 칸</b>만 — 사업장마다 바꿀 수 있음</li>
+   <li>상태 색은 브랜드와 상관없이 고정: 완료 초록 · 받을 돈/예정 주황 · 주의 빨강 · 정보 파랑</li>
+   <li>한 예약 = 두 줄. 1줄 칸 위치 고정(표처럼 비교), 2줄 = 채널·박수·도착·요청·<b>받을 돈</b></li>
+   <li>업종 칸 2개(반려견/국적/조식/차량, BBQ/락커/주차/장작)만 바뀌고 나머지는 같음</li>
+   <li>글자 최소 11px(배지), 본문 15·이름 16·객실 18, 누르는 곳 44px 이상</li>
+  </ul>
+ </aside>
+</div>
+
+<script>
+/* ─────────── 업종 프리셋 (가짜 데이터) ─────────── */
+const CH={ya:["야놀자","#F0386B"],gc:["여기어때","#7B4DFF"],nv:["네이버","#03C75A"],ag:["아고다","#4A7FE8"],ab:["에어비앤비","#FF5A5F"],bl:["반려생활","#F07A1A"],dr:["직접","#14907A"],
+  bk:["부킹닷컴","#1E5BC6"],hw:["호스텔월드","#F26A2E"],ex:["익스피디아","#E3A512"],tc:["땡큐캠핑","#2FA36B"],cp:["캠핏","#6C5CE7"]};
+const P={
+ pension:{label:"반려견 펜션",accent:"forest",org:"글램독",hq:"본사",branch:"양양점",branches:[["양양점",9,6,1],["가평점",4,3,0],["청평점",6,2,0],["경주점",3,3,1],["영흥도점",5,1,0],["통영점",7,5,0]],partner:"경주점",
+  unit:"객실",uw:50,ext:{k:"pet",l:"반려견"},addon:{k:"bbq",l:"BBQ",tab:"바베큐",en:"BBQ",icon:"flame",kind:"slot"},req:{l:"추가이불",icon:"bed-double"},total:31,
+  field:[["추가 인원",20000],["애견 추가",10000],["무게 추가",10000],["BBQ",30000]],
+  rows:[
+   {u:"306",nm:"이도윤",ch:"ya",n:1,ci:"10/26–10/27",eta:"15:00",pp:2,base:2,ext:[["달봉이","시츄","5-10kg"]],ad:"none",paid:43056,due:0,rv:1,tel:"010-0000-1306",bk:"10/26 11:18"},
+   {u:"307",nm:"박서연",ch:"ya",n:1,ci:"10/26–10/27",eta:"16:00",pp:3,base:2,ext:[["봉구","푸들","~5kg"]],ad:{t:"18:00",pl:"야외",s:"2",r:0},paid:47840,due:20000,dt:"인원 +1",di:[1,0,0,0],tel:"010-0000-1307",bk:"10/26 01:38"},
+   {u:"310",nm:"정민재",ch:"nv",n:1,ci:"10/26–10/27",eta:"17:30",pp:2,base:2,ext:[["코코","웰시코기","10-15kg",1]],ad:{t:"19:00",pl:"실내",s:"1",r:1},paid:53140,due:10000,dt:"무게 추가",di:[0,0,1,0],tel:"010-0000-1310",bk:"10/24 22:10"},
+   {u:"309",nm:"최유나",ch:"gc",n:2,ci:"10/26–10/28",eta:"19:00",pp:2,base:2,ext:[["모찌","포메","~5kg"],["모아","포메","~5kg"]],ad:null,paid:95680,due:20000,dt:"애견 +1 × 2박",di:[0,2,0,0],rq:"늦은 도착, 셀프 체크인 안내",tel:"010-0000-1309",bk:"10/20 16:57"},
+   {u:"311",nm:"한지우",ch:"ag",n:3,ci:"10/26–10/29",eta:"",pp:4,base:4,ext:[["두부","비숑","5-10kg"]],ad:"tbd",paid:212400,due:0,tel:"010-0000-1311",bk:"10/02 09:12"},
+   {u:"611",nm:"강예린",ch:"dr",n:1,ci:"10/26–10/27",eta:"20:00",pp:2,base:2,ext:[["라떼","말티즈","~5kg"]],ad:null,paid:53140,due:0,rq:"생일 케이크 냉장 보관 부탁",tel:"010-0000-1611",bk:"10/26 15:08"},
+   {u:"303",nm:"김하늘",ch:"bl",n:2,ci:"10/25–10/27",eta:"",pp:2,base:2,ext:[["별이","말티푸","~5kg"]],ad:"none",paid:88200,due:0,done:1,stay:2,at:"어제",tel:"010-0000-1303",bk:"10/11 16:19"},
+   {u:"607",nm:"오세린",ch:"ab",n:1,ci:"10/26–10/27",eta:"15:00",pp:2,base:2,ext:[["보리","시바","5-10kg"]],ad:{t:"18:30",pl:"야외",s:"3",r:0},paid:53140,due:0,done:1,at:"15:12",memo:"7시쯤 숯 추가 요청",tel:"010-0000-1607",bk:"10/26 09:28"},
+   {u:"608",nm:"윤태오",ch:"ya",n:1,ci:"10/26–10/27",eta:"15:30",pp:2,base:2,ext:[["아롱이","시츄","5-10kg"]],ad:"none",paid:53140,due:0,done:1,at:"15:40",tel:"010-0000-1608",bk:"10/26 09:28"}],
+  clean:[["306","need","A","15:00 입실"],["307","need","A","16:00 입실"],["309","need","B","19:00 입실"],["604","need","B","오늘 입실 없음"],["611","done","B","20:00 입실"],["605","done","A","오늘 입실 없음"],["310","insp","A","17:30 입실"],["612","insp","B","오늘 입실 없음"]],
+  units:["303","306","307","309","310","311","604","605","607","608","611","612"],names:["문가온","임채원","배도하","신아린","조하람","권시우","유다온","표지안","노을비","차은호"]},
+ hostel:{label:"호스텔",accent:"indigo",org:"시티스테이",hq:"관리",branch:"도심점",branches:[["도심점",8,6,1],["역앞점",12,7,0]],partner:"역앞점",
+  unit:"침대",uw:60,ext:{k:"nat",l:"국적"},addon:{k:"locker",l:"락커",tab:null,kind:"pick"},req:{l:"수건·키트",icon:"package"},total:48,
+  field:[["침구 대여",5000],["락커",3000],["조식",8000],["늦은 체크아웃",10000]],
+  rows:[
+   {u:"D1-03",nm:"Emma Walsh",ch:"hw",n:2,ci:"10/26–10/28",eta:"14:00",pp:1,base:1,ext:"GB",ad:{l:"L12"},paid:58000,due:0,tel:"+44 0000 000000",bk:"10/12 08:40"},
+   {u:"D1-05",nm:"Kenji Sato",ch:"bk",n:3,ci:"10/26–10/29",eta:"16:30",pp:1,base:1,ext:"JP",ad:null,paid:87000,due:5000,dt:"침구 대여",di:[1,0,0,0],rq:"하단 침대 희망",tel:"+81 00 0000 0000",bk:"10/20 21:03"},
+   {u:"P201",nm:"이서준",ch:"dr",n:1,ci:"10/26–10/27",eta:"18:00",pp:2,base:2,ext:"KR",ad:{l:"L03"},paid:79000,due:16000,dt:"조식 2인",di:[0,0,2,0],tel:"010-0000-2201",bk:"10/25 19:22"},
+   {u:"D2-04",nm:"Sofia Rossi",ch:"bk",n:2,ci:"10/26–10/28",eta:"15:00",pp:1,base:1,ext:"IT",ad:null,paid:58000,due:3000,dt:"락커",di:[0,1,0,0],tel:"+39 000 000 0000",bk:"10/18 07:44"},
+   {u:"F301",nm:"Chen Wei",ch:"ag",n:2,ci:"10/26–10/28",eta:"",pp:3,base:3,ext:"CN",ad:{l:"L07"},paid:198000,due:0,tel:"+86 000 0000 0000",bk:"10/01 13:30"},
+   {u:"D2-01",nm:"Lucas Martin",ch:"hw",n:1,ci:"10/26–10/27",eta:"23:30",pp:1,base:1,ext:"FR",ad:null,paid:29000,due:0,rq:"23:30 늦은 도착 · 출입문 비밀번호 안내",tel:"+33 0 00 00 00 00",bk:"10/26 10:05"},
+   {u:"D1-01",nm:"Noah Kim",ch:"hw",n:3,ci:"10/24–10/27",eta:"",pp:1,base:1,ext:"US",ad:{l:"L01"},paid:87000,due:0,done:1,stay:3,at:"그저께",tel:"+1 000 000 0000",bk:"10/10 11:00"},
+   {u:"P203",nm:"박지아",ch:"ab",n:1,ci:"10/26–10/27",eta:"13:00",pp:2,base:2,ext:"KR",ad:{l:"L05"},paid:82000,due:0,done:1,at:"13:20",tel:"010-0000-2203",bk:"10/26 08:10"}],
+  clean:[["D1-03","need","A","14:00 입실"],["D1-05","need","A","16:30 입실"],["D2-04","need","B","15:00 입실"],["D3-05","need","B","오늘 입실 없음"],["D2-01","done","A","23:30 입실"],["F301","done","B","오늘 입실"],["P201","insp","A","18:00 입실"],["D3-02","insp","B","오늘 입실 없음"]],
+  units:["D1-01","D1-03","D1-05","D2-01","D2-04","D3-02","P201","P203","F301"],names:["Mia","Leo","Ana","Tom","Yuki","Ola","Ben","Zoe","Max","Ivy"]},
+ hotel:{label:"호텔",accent:"navy",org:"시티호텔",hq:"관리",branch:"명동",branches:[["명동",8,6,0],["강남",14,9,1]],partner:"강남",
+  unit:"객실",uw:54,ext:{k:"bf",l:"조식"},addon:{k:"park",l:"주차",tab:null,kind:"count"},req:{l:"어메니티",icon:"package"},total:60,
+  field:[["인원 추가",25000],["조식",25000],["주차",15000],["보증금",50000]],
+  rows:[
+   {u:"1203",nm:"김도현",ch:"bk",n:2,ci:"10/26–10/28",eta:"15:00",pp:2,base:2,ext:2,ad:{c:1},paid:356000,due:0,tel:"010-0000-3120",bk:"10/12 20:01"},
+   {u:"1501",nm:"정하윤",ch:"dr",n:1,ci:"10/26–10/27",eta:"13:00",pp:3,base:2,ext:3,ad:{c:1},paid:420000,due:25000,dt:"인원 +1",di:[1,0,0,0],rq:"얼리 체크인 13시",tel:"010-0000-3150",bk:"10/22 10:40"},
+   {u:"905",nm:"Olivia Brown",ch:"ex",n:1,ci:"10/26–10/27",eta:"16:00",pp:2,base:2,ext:0,ad:null,paid:189000,due:50000,dt:"보증금",di:[0,0,0,1],rq:"고층 · 금연 객실",tel:"+1 000 000 0000",bk:"10/19 03:12"},
+   {u:"708",nm:"Tanaka Yui",ch:"ag",n:3,ci:"10/26–10/29",eta:"19:30",pp:1,base:1,ext:0,ad:null,paid:402000,due:0,tel:"+81 00 0000 0000",bk:"10/05 18:20"},
+   {u:"1206",nm:"Ava Lee",ch:"bk",n:2,ci:"10/26–10/28",eta:"21:00",pp:2,base:2,ext:0,ad:null,paid:378000,due:0,rq:"21시 도착, 카드키 2장",tel:"+82 00 0000 0000",bk:"10/25 22:30"},
+   {u:"1104",nm:"최민호",ch:"nv",n:1,ci:"10/26–10/27",eta:"",pp:2,base:2,ext:2,ad:{c:1},paid:198000,due:15000,dt:"주차",di:[0,0,1,0],tel:"010-0000-3110",bk:"10/26 07:55"},
+   {u:"806",nm:"오준서",ch:"ex",n:2,ci:"10/25–10/27",eta:"",pp:2,base:2,ext:2,ad:{c:1},paid:376000,due:0,done:1,stay:2,at:"어제",tel:"010-0000-3080",bk:"10/09 12:00"},
+   {u:"1002",nm:"한소희",ch:"dr",n:1,ci:"10/26–10/27",eta:"14:00",pp:1,base:1,ext:1,ad:null,paid:179000,due:0,done:1,at:"14:05",tel:"010-0000-3100",bk:"10/26 09:00"}],
+  clean:[["1203","need","A","15:00 입실"],["708","need","A","19:30 입실"],["1104","need","B","입실 예정"],["1007","need","B","오늘 입실 없음"],["905","done","A","16:00 입실"],["1206","done","B","21:00 입실"],["1501","insp","A","13:00 입실"],["1402","insp","B","오늘 입실 없음"]],
+  units:["708","806","905","1002","1104","1203","1206","1402","1501"],names:["Kim","Lee","Park","Smith","Chen","Sato","Choi","Jung","Brown","Kang"]},
+ camping:{label:"캠핑",accent:"terra",org:"숲캠프",hq:"관리",branch:"가평 캠프",branches:[["가평 캠프",8,6,0],["홍천 캠프",11,4,1]],partner:"홍천 캠프",
+  unit:"사이트",uw:64,ext:{k:"car",l:"차량"},addon:{k:"fire",l:"장작",tab:"장작·대여",en:"Firewood",icon:"tent",kind:"slot"},req:{l:"대여품",icon:"package"},total:24,
+  field:[["인원 추가",10000],["전기",5000],["장작",10000],["차량 추가",5000]],
+  rows:[
+   {u:"A-03",nm:"서지훈",ch:"tc",n:1,ci:"10/26–10/27",eta:"14:00",pp:4,base:4,ext:1,ad:{t:"18:00",q:"2묶음",r:0},paid:65000,due:5000,dt:"전기",di:[0,1,0,0],tel:"010-0000-4103",bk:"10/14 21:00"},
+   {u:"글램핑3",nm:"권시우",ch:"cp",n:1,ci:"10/26–10/27",eta:"16:00",pp:4,base:4,ext:1,ad:{t:"18:30",q:"2묶음",r:0},paid:189000,due:10000,dt:"장작",di:[0,0,1,0],tel:"010-0000-4303",bk:"10/21 12:10"},
+   {u:"A-07",nm:"문가온",ch:"cp",n:2,ci:"10/26–10/28",eta:"15:30",pp:5,base:4,ext:2,ad:null,paid:140000,due:15000,dt:"인원 +1 · 차량 +1",di:[1,0,0,1],rq:"차량 2대, 사이트 옆 주차 가능한지",tel:"010-0000-4107",bk:"10/18 09:30"},
+   {u:"B-11",nm:"임채원",ch:"nv",n:1,ci:"10/26–10/27",eta:"17:00",pp:2,base:2,ext:1,ad:{t:"19:00",q:"1묶음",r:1},paid:55000,due:0,tel:"010-0000-4211",bk:"10/25 20:44"},
+   {u:"C-02",nm:"신아린",ch:"tc",n:2,ci:"10/26–10/28",eta:"21:00",pp:2,base:2,ext:1,ad:null,paid:110000,due:0,rq:"21시 늦은 입장, 정문 비밀번호",tel:"010-0000-4302",bk:"10/23 08:15"},
+   {u:"카라반2",nm:"배도하",ch:"dr",n:1,ci:"10/26–10/27",eta:"",pp:3,base:4,ext:1,ad:"tbd",paid:120000,due:0,tel:"010-0000-4502",bk:"10/26 13:02"},
+   {u:"B-04",nm:"조하람",ch:"nv",n:2,ci:"10/25–10/27",eta:"",pp:3,base:3,ext:1,ad:"none",paid:110000,due:0,done:1,stay:2,at:"어제",tel:"010-0000-4204",bk:"10/12 19:20"},
+   {u:"A-01",nm:"유다온",ch:"tc",n:1,ci:"10/26–10/27",eta:"13:30",pp:2,base:2,ext:1,ad:"none",paid:55000,due:0,done:1,at:"13:42",tel:"010-0000-4101",bk:"10/26 07:10"}],
+  clean:[["A-03","need","A","14:00 입실"],["A-07","need","A","15:30 입실"],["C-02","need","B","21:00 입실"],["B-08","need","B","오늘 입실 없음"],["카라반2","done","A","입실 예정"],["글램핑3","done","B","16:00 입실"],["B-11","insp","A","17:00 입실"],["A-05","insp","B","오늘 입실 없음"]],
+  units:["A-01","A-03","A-05","A-07","B-04","B-08","B-11","C-02","글램핑3","카라반2"],names:["김","이","박","최","정","강","조","윤","장","임"]}
+};
+const NAT={GB:"영국",JP:"일본",KR:"한국",IT:"이탈리아",CN:"중국",FR:"프랑스",US:"미국"};
+const ACC=[["forest","포레스트","#1F5A36"],["ink","잉크(기본)","#1C2024"],["indigo","인디고","#3A47B8"],["navy","네이비","#1E3A5F"],["terra","테라코타","#A84A24"]];
+const ROLES=[["hq","본사·대표"],["mgr","지점 매니저"],["staff","직원"],["vendor","업주(위탁)"]];
+const PLUS=[
+ {k:"sync",ic:"refresh-cw",nm:"채널 자동마감",old:"채널 자동 방막기 연동",one:"한 채널에 예약이 들어오면 다른 채널은 자동으로 마감하고, 취소되면 다시 열어요.",pts:["모든 판매 채널 동시 관리","예약 알림을 받는 즉시 처리, 10분마다 한 번 더 확인","겹치기 예약·수기 방막기 실수 방지"],need:"쓰고 있는 채널 계정(본사가 따로 받음)",ch:1},
+ {k:"price",ic:"trending-up",nm:"스마트 요금",old:"AI RM · 가격 자동화",one:"요일·시즌·예약 속도를 보고 요금을 제안해요. [적용]을 누른 것만 반영돼요.",pts:["하루 한 번 제안, 마음대로 안 바뀜","최저·최고가 한도 사업장별 설정","성과는 요금관리 › 성과 분석에서"],need:"객실 기본 요금표, 최저·최고가 기준"},
+ {k:"reply",ic:"messages-square",nm:"리뷰 자동답글",old:"AI 리뷰 답변 자동화",one:"새 리뷰에 우리 숙소 말투로 답글을 달아요. 별점 낮은 리뷰는 먼저 알려 드려요.",pts:["채널별 하루 몇 번 확인","낮은 별점은 올리기 전 알림","말투·금지어 사업장별 설정"],need:"리뷰 답글을 다는 채널 계정, 답글 예시 3~5개",ch:1},
+ {k:"insight",ic:"star",nm:"리뷰 분석",old:"리뷰 분석기",one:"채널별 별점·작성률·등급과 손님이 자주 말하는 장단점을 한 화면에.",pts:["월별 점수·등급과 목표","채널별 작성률 비교","칭찬·불만 키워드 TOP"],need:"없음 (예약 데이터로 계산)"},
+ {k:"brief",ic:"megaphone",nm:"마케팅 리포트",old:"주간 마케팅 리포트",one:"매주 월요일, 검색·순위·예약 흐름을 한 장으로 요약해요.",pts:["지난주 대비 오른 것·내린 것","이번 주 해 볼 일 3가지","주차별로 다시 보기"],need:"네이버 플레이스·SNS 주소(있으면)"}];
+const STL={on:"사용 중",trial:"시험 중",req:"신청함 · 확인 중",can:"신청 가능"};
+const T={ko:{t:"스태프",clean:"청소",need:"청소 필요",done:"청소 완료",insp:"검수 완료",tap:"객실을 누르면 다음 단계로",team:"팀",ready:"준비완료",not:"준비 전",note:"이 화면에는 손님 이름·전화번호·금액이 나오지 않습니다.",tbd:"시간 미정",prog:"오늘 청소",in:"실내",out:"야외",seat:"번"},
+         en:{t:"Staff",clean:"Cleaning",need:"To clean",done:"Cleaned",insp:"Inspected",tap:"Tap a room for the next step",team:"Team",ready:"Ready",not:"Not ready",note:"No guest names, phone numbers or amounts are shown here.",tbd:"Time TBD",prog:"Today's cleaning",in:"Indoor",out:"Outdoor",seat:"Seat "}};
+
+/* ─────────── 상태 ─────────── */
+const Q=new URLSearchParams(location.search);
+const S={p:Q.get("p")||"pension",a:Q.get("a")||"",r:Q.get("r")||"hq",m:Q.get("m")||"app",tab:Q.get("tab")||"checkin",sub:null,f:"all",doneOpen:false,day:0,rv:"grid",cv:"status",af:"all",lang:"ko",plusState:{}};
+if(Q.get("bare")==="1")document.body.classList.add("bare");
+const DATA={};for(const k in P){DATA[k]=JSON.parse(JSON.stringify(P[k].rows));}
+const CLEAN={};for(const k in P){CLEAN[k]=P[k].clean.map(x=>x.slice());}
+const $=s=>document.querySelector(s);
+const ic=(n,c="i")=>`<svg class="${c}"><use href="#i-${n}"/></svg>`;
+const won=v=>v.toLocaleString("ko-KR");
+const pr=()=>P[S.p], rows=()=>DATA[S.p];
+const DOW="일월화수목금토";
+function dlabel(off){const d=new Date(2026,9,26+off);return `${d.getMonth()+1}월 ${d.getDate()}일 (${DOW[d.getDay()]})`}
+function accent(){return S.a||pr().accent}
+function plusState(k){const key=S.p+":"+(S.r==="vendor"?"partner":"main")+":"+k;if(S.plusState[key])return S.plusState[key];
+  if(S.p==="pension"&&S.r!=="vendor")return {sync:"on",price:"trial",reply:"on",insight:"on",brief:"on"}[k];
+  return "can"}
+
+/* ─────────── 공통 렌더 ─────────── */
+function tabsFor(){if(S.m==="staff")return [["clean","spray-can",T[S.lang].clean],...(pr().addon.tab?[["addon",pr().addon.icon,S.lang==="en"?pr().addon.en:pr().addon.tab]]:[])];
+  if(S.r==="vendor")return [];
+  const t=[["checkin","list-checks","체크인"],["resv","calendar-range","예약"],["clean","spray-can","청소"]];
+  if(pr().addon.tab)t.push(["addon",pr().addon.icon,pr().addon.tab]);
+  t.push(["more","ellipsis","더보기"]);return t}
+function render(){
+  document.getElementById("ph").dataset.accent=accent();document.body.dataset.accent=accent();
+  document.getElementById("ph").style.setProperty("--cols",`44px ${pr().uw}px minmax(0,1fr) 44px 52px 62px`);
+  if(S.r==="vendor"&&S.m==="app"&&!S.sub)S.tab="more";
+  const tabs=tabsFor();if(tabs.length&&!tabs.find(t=>t[0]===S.tab))S.tab=tabs[0][0];
+  renderAB();renderDB();
+  const needN=CLEAN[S.p].filter(c=>c[1]==="need").length;
+  $("#tb").hidden=!tabs.length;
+  $("#tb").innerHTML=tabs.map(([k,icn,l])=>`<button data-tab="${k}" ${S.tab===k&&!S.sub?'aria-current="page"':""}><span class="pi">${ic(icn)}</span>${l}${k==="clean"&&needN&&S.m==="app"?`<span class="bdg">${needN}</span>`:""}${k==="more"&&S.r==="hq"?`<span class="bdg warn">2</span>`:""}</button>`).join("");
+  const v=S.sub||S.tab;
+  const fn={checkin:vCheckin,resv:vResv,clean:vClean,addon:vAddon,more:vMore,plus:vPlus,plusadm:vPlusAdm,settle:vSettle}[v];
+  $("#main").innerHTML=S.m==="staff"?(S.tab==="addon"?vStaffAddon():vStaffClean()):fn();
+  panel();
+}
+function renderAB(){const p=pr();let h="";
+  if(S.sub){const t={plus:"플러스",plusadm:"플러스 신청 관리",settle:"정산"}[S.sub];
+    h=`<div class="ab-back"><button class="ib" data-act="back" aria-label="뒤로">${ic("chevron-left")}</button><h1>${t}</h1></div><span class="sp"></span>`;}
+  else if(S.m==="staff"){h=`<span class="ab-t">${p.branch}<small>${T[S.lang].t}</small></span><span class="sp"></span><div class="lng" role="group" aria-label="언어"><button data-lang="ko" aria-pressed="${S.lang==="ko"}">한</button><button data-lang="en" aria-pressed="${S.lang==="en"}">EN</button></div>`;}
+  else{const bn=S.r==="vendor"?p.partner:p.branch;
+    h=`<button class="ab-t" ${S.r==="hq"?'data-act="branch"':""}>${bn}${S.r==="hq"?ic("chevron-down"):""}</button><span class="sp"></span>`;
+    if(S.r!=="vendor")h+=`<button class="ib" data-act="search" aria-label="예약 검색">${ic("search")}</button><button class="ib" data-act="handover" aria-label="인수인계 2건">${ic("message-square-text")}<span class="bdg">2</span></button><button class="ib" data-act="request" aria-label="${p.req.l} 1건">${ic(p.req.icon)}<span class="bdg info">1</span></button>`;}
+  $("#ab").innerHTML=h}
+function renderDB(){const show=!S.sub&&["checkin","clean","addon"].includes(S.tab)&&!(S.r==="vendor"&&S.m==="app");
+  $("#db").hidden=!show;if(!show)return;
+  const today=S.day===0;
+  $("#db").innerHTML=`<div class="ds"><button class="nv" data-day="-1" aria-label="이전 날">${ic("chevron-left")}</button><button class="ds-c n" data-act="cal">${ic("calendar-days")}${S.m==="staff"&&S.lang==="en"?new Date(2026,9,26+S.day).toDateString().slice(0,10):dlabel(S.day)}${today?`<span class="ti">${S.lang==="en"&&S.m==="staff"?"Today":"오늘"}</span>`:""}</button><button class="nv" data-day="1" aria-label="다음 날">${ic("chevron-right")}</button></div>${today?"":`<button class="bt-today" data-day="0">오늘로</button>`}`}
+
+/* ─────────── 체크인 ─────────── */
+function cell(r){const p=pr();let ex="",ad="";
+  if(p.ext.k==="pet"){const heavy=r.ext.some(d=>d[3]);ex=`<span>${ic("dog")}<b class="n">${r.ext.length}</b></span><small class="${heavy?"w":""}">${heavy?"10kg↑":r.ext[0][2]}</small>`}
+  if(p.ext.k==="nat"){ex=`<span class="cc2">${r.ext}</span><small>${NAT[r.ext]||""}</small>`}
+  if(p.ext.k==="bf"){ex=r.ext?`<span>${ic("coffee")}<b class="n">${r.ext}</b></span><small>포함</small>`:`<small>–</small>`}
+  if(p.ext.k==="car"){ex=`<span>${ic("car")}<b class="n">${r.ext}</b></span><small>대</small>`}
+  const a=r.ad;
+  if(p.addon.kind==="slot"){ad=a==="none"?`<span class="pl no">미이용</span>`:a==="tbd"?`<span class="pl tbd">시간<br>미정</span>`:!a?`<span class="pl add">+ ${p.addon.l}</span>`:`<span class="pl ${a.r?"ok":"set"}"><span class="n">${a.t}</span><small>${a.pl?a.pl+" "+a.s:a.q}${a.r?" ✓":""}</small></span>`}
+  if(p.addon.kind==="pick"){ad=a?`<span class="pl inf n">${a.l}</span>`:`<span class="pl add">+ 배정</span>`}
+  if(p.addon.kind==="count"){ad=a?`<span class="pl inf">${ic("car")}<small>${a.c}대</small></span>`:`<span class="pl no">–</span>`}
+  return [ex,ad]}
+function row(r,i){const p=pr();const [cn,cc]=CH[r.ch];const [ex,ad]=cell(r);const over=r.pp>r.base;
+  const edge=r.stay?"var(--warn)":r.rq?"var(--bad)":"transparent";
+  return `<div class="bk ${r.done?"done":""}" style="--edge:${edge}">
+   <button class="hit" data-det="${i}" aria-label="${r.u} ${r.nm} 상세"></button>
+   <button class="ck" data-chk="${i}" aria-label="${r.u} 입실 체크" aria-pressed="${!!r.done}"><span class="cc">${ic("check")}</span></button>
+   <div class="u n ${r.u.length>4||/[가-힣]/.test(r.u)?"sm":""}">${r.u}${r.stay?`<small>연박 ${r.stay}일</small>`:""}</div>
+   <div class="nm"><span class="t">${r.nm}</span>${r.rv?`<span class="tag rv">재방문</span>`:""}</div>
+   <label class="ppw"><input class="n ${over?"over":""}" type="number" inputmode="numeric" value="${r.pp}" data-pp="${i}" aria-label="${r.u} 인원"></label>
+   <button class="ex" data-det="${i}" aria-label="${p.ext.l}">${ex}</button>
+   <button class="ad" data-ad="${i}" aria-label="${p.addon.l}">${ad}</button>
+   <div class="mt"><span class="ch"><i style="background:${cc}"></i>${cn}</span><span class="sp2">·</span><span>${r.stay?`${r.n}박 중 ${r.stay}일째`:r.n+"박"}</span><span class="sp2">·</span><span class="tm2 n">${r.done?`${ic("circle-check")}${r.at} 입실`:(r.eta?`${ic("clock")}${r.eta}`:"도착 미정")}</span>${r.due&&!r.done?`<span class="mo n">${ic("banknote")}+${won(r.due)}</span>`:""}</div>
+   ${r.rq?`<div class="rq3">${ic("circle-alert")}<span>${r.rq}</span></div>`:""}
+  </div>`}
+function vCheckin(){const p=pr(),R=rows();
+  const idx=R.map((r,i)=>i);
+  const wait=idx.filter(i=>!R[i].done).sort((a,b)=>(R[a].eta||"99").localeCompare(R[b].eta||"99"));
+  const done=idx.filter(i=>R[i].done);
+  const dueN=wait.filter(i=>R[i].due).length,dueSum=wait.reduce((s,i)=>s+(R[i].due||0),0);
+  const hasSlot=p.addon.kind!=="count";
+  const adN=R.filter(r=>r.ad&&r.ad!=="none").length,rqN=R.filter(r=>r.rq).length;
+  const f4=p.addon.kind==="slot"?["addon",p.addon.l,adN]:["req","요청",rqN];
+  const ok=i=>S.f==="all"||(S.f==="wait"&&!R[i].done)||(S.f==="due"&&R[i].due&&!R[i].done)||(S.f==="addon"&&R[i].ad&&R[i].ad!=="none")||(S.f==="req"&&R[i].rq);
+  const W=wait.filter(ok),D=done.filter(ok);
+  const cols=`<span class="c">인원</span><span class="c">${p.ext.l}</span><span class="c">${p.addon.l}</span>`;
+  let h=`<div class="seg f4" role="group" aria-label="보기">
+    <button data-f="all" aria-pressed="${S.f==="all"}">전체<b class="n">${R.length}</b></button>
+    <button data-f="wait" aria-pressed="${S.f==="wait"}">입실 대기<b class="n">${wait.length}</b></button>
+    <button data-f="due" class="mon" aria-pressed="${S.f==="due"}">받을 돈 ${dueN}<b class="n">${dueSum?"+"+(dueSum>=10000?(dueSum/10000).toFixed(dueSum%10000?1:0)+"만":won(dueSum)):"0"}</b></button>
+    <button data-f="${f4[0]}" aria-pressed="${S.f===f4[0]}">${f4[1]}<b class="n">${f4[2]}</b></button></div>`;
+  if(W.length)h+=`<div class="gh"><span class="l">입실 대기 ${W.length}<small>· 도착순</small></span>${cols}</div><div class="lc">${W.map(i=>row(R[i],i)).join("")}</div>`;
+  if(D.length&&S.f!=="wait"&&S.f!=="due")h+=`<button class="gh" data-act="doneT" aria-expanded="${S.doneOpen}"><span class="l">입실 완료 ${D.length} ${ic("chevron-down")}</span>${S.doneOpen?cols:""}</button>${S.doneOpen?`<div class="lc">${D.map(i=>row(R[i],i)).join("")}</div>`:""}`;
+  if(!W.length&&!D.length)h+=`<p class="hint" style="justify-content:center;margin-top:30px">해당하는 예약이 없어요</p>`;
+  h+=`<button class="lnk" data-act="allcols">${ic("columns-3")}표로 모든 칸 보기</button>`;
+  return h}
+
+/* ─────────── 예약 ─────────── */
+function rnd(seed){let s=seed;return()=>(s=(s*9301+49297)%233280)/233280}
+function vResv(){const p=pr();let h=`<div class="seg mx12" style="margin-top:2px"><button data-rv="grid" aria-pressed="${S.rv==="grid"}">예약현황</button><button data-rv="cal" aria-pressed="${S.rv==="cal"}">달력</button></div>`;
+  if(S.rv==="grid"){const r=rnd(S.p.length*7+3),chs=Object.keys(CH).filter(k=>p.rows.some(x=>x.ch===k));
+    h+=`<div class="rvn"><button class="ib" aria-label="이전 주">${ic("chevron-left")}</button><span class="per n">10월 26일 – 11월 1일</span><button class="ib" aria-label="다음 주">${ic("chevron-right")}</button></div>`;
+    h+=`<div class="gw"><div class="rg"><div class="h rl">${p.unit}</div>`;
+    for(let d=0;d<7;d++){const dt=new Date(2026,9,26+d);const w=dt.getDay();h+=`<div class="h ${w===6?"sat":w===0?"sun":""} ${d===0?"td":""}">${DOW[w]}<b class="n">${dt.getDate()}</b></div>`}
+    p.units.forEach((u,ri)=>{const row0=ri+2;h+=`<div class="rl" style="grid-row:${row0}">${u}</div>`;
+      const live=DATA[S.p].find(x=>x.u===u);const occ=[];
+      if(live){const len=Math.min(7,live.n-(live.stay?live.stay-1:0));occ.push([0,Math.max(1,len),live.ch,live.nm])}
+      let d=occ.length?occ[0][1]:0;
+      while(d<7){if(r()<.42){const len=1+Math.floor(r()*3),L=Math.min(len,7-d);occ.push(r()<.1?[d,L,"blk","방막기"]:[d,L,chs[Math.floor(r()*chs.length)],p.names[Math.floor(r()*p.names.length)]]);d+=L+ (r()<.5?1:0)}else d++}
+      for(let c=0;c<7;c++)h+=`<div class="c ${c===0?"td":""}" style="grid-row:${row0};grid-column:${c+2}"></div>`;
+      occ.forEach(([s,l,ch,nm])=>{h+=`<div class="bar ${ch==="blk"?"blk":""}" style="grid-row:${row0};grid-column:${s+2}/span ${l};${ch!=="blk"?`--c:${CH[ch][1]}`:""}">${nm}</div>`})});
+    h+=`</div></div><p class="hint">${ic("info")}빈 칸을 길게 누른 채 끌면 수기예약·방막기 (지금 기능 그대로)</p>`}
+  else{const r=rnd(11+S.p.length);h+=`<div class="rvn"><button class="ib" aria-label="이전 달">${ic("chevron-left")}</button><span class="per">2026년 10월</span><button class="ib" aria-label="다음 달">${ic("chevron-right")}</button></div><div class="cal">${DOW.split("").map(d=>`<div class="w">${d}</div>`).join("")}`;
+    for(let i=0;i<4;i++)h+=`<div class="d pad"></div>`;
+    for(let d=1;d<=31;d++){const w=new Date(2026,9,d).getDay();const base=w===5||w===6?.8:.3;let o=Math.min(1,base+r()*.4);if(o>.93)o=1;const n=Math.round(o*p.total);const lv=n>=p.total?"full":o>=.7?"l2":o>=.4?"l1":"";
+      h+=`<div class="d ${lv} ${d===26?"td":""}"><b class="n">${d}</b><small class="n">${lv==="full"?"만실":n+"/"+p.total}</small></div>`}
+    h+=`</div><div class="lgd" style="margin:10px 16px 0"><span><i style="background:var(--surface);border:1px solid var(--line)"></i>40% 미만</span><span><i style="background:color-mix(in srgb,var(--brand) 12%,var(--surface))"></i>40~70%</span><span><i style="background:color-mix(in srgb,var(--brand) 26%,var(--surface))"></i>70% 이상</span><span><i style="background:var(--brand)"></i>만실</span></div><p class="hint">${ic("info")}날짜를 누르면 그날 체크인으로 이동</p>`}
+  return h}
+
+/* ─────────── 청소 ─────────── */
+function vClean(){const C=CLEAN[S.p],p=pr();const n={need:0,done:0,insp:0};C.forEach(c=>n[c[1]]++);
+  const L={need:"청소 필요",done:"청소 완료",insp:"검수 완료"};
+  let h=`<div class="card pad"><div class="kv"><small>오늘 정리할 ${p.unit} ${C.length}</small><small>${ic("refresh-cw").replace('class="i"','class="i" style="width:14px;height:14px;vertical-align:-2px"')} 1분마다 갱신</small></div>
+   <div class="big n">${n.done+n.insp}<i>/ ${C.length} 끝남</i></div>
+   <div class="trk"><i style="width:${n.insp/C.length*100}%;background:var(--ok)"></i><i style="width:${n.done/C.length*100}%;background:var(--info)"></i></div>
+   <div class="lgd"><span><i style="background:var(--bad)"></i>청소 필요 ${n.need}</span><span><i style="background:var(--info)"></i>청소 완료 ${n.done}</span><span><i style="background:var(--ok)"></i>검수 완료 ${n.insp}</span></div></div>
+   <div class="seg mx12"><button data-cv="status" aria-pressed="${S.cv==="status"}">상태별</button><button data-cv="team" aria-pressed="${S.cv==="team"}">팀별</button></div>`;
+  const grp=S.cv==="status"?[["need",L.need],["done",L.done],["insp",L.insp]].map(([k,l])=>[l,C.map((c,i)=>[c,i]).filter(([c])=>c[1]===k)]):[["A","A팀"],["B","B팀"]].map(([k,l])=>[l,C.map((c,i)=>[c,i]).filter(([c])=>c[2]===k)]);
+  grp.forEach(([l,list])=>{if(!list.length)return;h+=`<div class="sec"><b>${l}</b> ${list.length}</div><div class="ml">${list.map(([c,i])=>`<button class="lr" data-cl="${i}"><span class="u2 n">${c[0]}</span><span class="m2"><b>${c[3]}</b><small><span class="team">${c[2]}팀</span></small></span><span class="pill ${c[1]}">${c[1]==="insp"?ic("badge-check"):c[1]==="done"?ic("check"):ic("spray-can")}${L[c[1]]}</span></button>`).join("")}</div>`});
+  h+=`<p class="hint">${ic("info")}줄을 누르면 다음 단계(청소 필요 → 청소 완료 → 검수 완료). 길게 누르면 상태·팀 직접 선택.</p>`;return h}
+
+/* ─────────── 부가서비스(바베큐/장작) ─────────── */
+function vAddon(){const p=pr(),R=rows();const list=R.map((r,i)=>[r,i]).filter(([r])=>r.ad&&r.ad!=="none");
+  const isB=p.addon.k==="bbq";
+  const fl=isB?list.filter(([r])=>S.af==="all"||(r.ad!=="tbd"&&r.ad.pl===(S.af==="in"?"실내":"야외"))||(r.ad==="tbd"&&S.af==="all")):list;
+  const ready=list.filter(([r])=>r.ad.r).length;
+  let h=`<div class="card pad"><div class="kv"><small>오늘 ${p.addon.tab}</small></div><div class="big n">${list.length}<i>팀 · 준비 ${ready}</i></div></div>`;
+  if(isB)h+=`<div class="seg mx12"><button data-af="all" aria-pressed="${S.af==="all"}">전체</button><button data-af="out" aria-pressed="${S.af==="out"}">야외</button><button data-af="in" aria-pressed="${S.af==="in"}">실내</button></div>`;
+  const times=[...new Set(fl.map(([r])=>r.ad==="tbd"?"미정":r.ad.t))].sort((a,b)=>a==="미정"?1:b==="미정"?-1:a.localeCompare(b));
+  times.forEach(t=>{const g=fl.filter(([r])=>(r.ad==="tbd"?"미정":r.ad.t)===t);
+    h+=`<div class="sec"><b class="n">${t==="미정"?"시간 미정":t}</b> ${g.length}팀</div><div class="ml">${g.map(([r,i])=>`<div class="lr" style="grid-template-columns:62px minmax(0,1fr) auto"><span class="u2 n">${r.u}</span><button class="m2" data-ad="${i}" style="text-align:left;min-height:44px"><b>${r.nm}</b><small>${r.ad==="tbd"?"시간·자리 정하기":(r.ad.pl?r.ad.pl+" "+r.ad.s+"번 자리":r.ad.q)}</small></button>${r.ad==="tbd"?`<button class="rdy" data-ad="${i}">${ic("clock")}정하기</button>`:`<button class="rdy" data-ready="${i}" aria-pressed="${!!r.ad.r}">${ic(r.ad.r?"check":"circle-dashed")}${r.ad.r?"준비완료":"준비 전"}</button>`}</div>`).join("")}</div>`});
+  return h}
+
+/* ─────────── 더보기 ─────────── */
+function mi(icn,l,r="",act="",cls=""){return `<button class="mi ${cls}" ${act}><span class="ico">${ic(icn)}</span>${l}<span class="r">${r}${ic("chevron-right")}</span></button>`}
+function vMore(){const p=pr(),R=S.r;const nm={hq:"피터",mgr:p.branch+" 매니저",staff:p.branch+" 직원",vendor:p.partner+" 업주"}[R];
+  const role={hq:p.hq+" · 사업장 "+p.branches.length+"곳",mgr:"지점 매니저 · "+p.branch,staff:"직원 · "+p.branch,vendor:"위탁 운영 · "+p.partner}[R];
+  const T2=(t)=>`data-act="toast" data-msg="${t} — 지금 화면 그대로, 새 디자인만 입힘"`;
+  let h=`<div class="pf"><span class="av">${nm[0]}</span><div><b>${nm}</b><small>${role}</small></div></div>`;
+  const sec=(t,items)=>items.length?`<div class="sec"><b>${t}</b></div><div class="ml">${items.join("")}</div>`:"";
+  if(R!=="vendor")h+=sec("운영",[mi("calendar-check","근무표","","",""),].map(x=>x.replace('class="mi "',`class="mi" ${T2("근무표")}`)));
+  const money=[];
+  if(R!=="vendor")money.push(mi("receipt","현장기록","",T2("현장기록")));
+  if(R==="hq"||R==="mgr")money.push(mi("wallet","지출","",T2("지출")),mi("calculator","현금시제","",T2("현금시제")));
+  if(R==="hq"||R==="vendor")money.push(mi("hand-coins","정산",`<span class="cnt w">미송금 2주차</span>`,'data-sub="settle"'));
+  h+=sec("돈",money);
+  if(R==="hq")h+=sec(p.hq,[mi("clipboard-list","전체 예약",`사업장 ${p.branches.length}곳`,T2("전체 예약")),mi("chart-line","매출 현황","",T2("매출 현황")),mi("star","리뷰 분석","",T2("리뷰 분석")),mi("megaphone","마케팅","",T2("마케팅")),mi("tag","요금관리","",T2("요금관리"))]);
+  if(R==="hq")h+=sec("설정",[mi("history","인수인계 설정","",T2("인수인계 설정")),mi("sparkles","동의 혜택","",T2("동의 혜택")),mi("link","바로가기 설정","",T2("바로가기 설정")),mi("zap","플러스 신청 관리",`<span class="cnt b">새 1</span>`,'data-sub="plusadm"')]);
+  if(R==="mgr"||R==="vendor")h+=sec("플러스",[mi("zap","부가기능 신청","채널 자동마감 외 4","data-sub=\"plus\"")]);
+  if(R==="hq")h+=sec("플러스",[mi("zap","부가기능 둘러보기","5가지",'data-sub="plus"')]);
+  if(R==="hq"||R==="mgr")h+=sec("바로가기",[mi("external-link","셀디 PMS","새 창",T2("셀디 PMS")),mi("external-link","NOL 파트너센터","새 창",T2("NOL 파트너센터"))]);
+  h+=sec("기타",[mi("circle-help","도움말","",T2("도움말")),...(R!=="vendor"?[mi("undo-2","예전 화면으로","이번 주만",'data-act="toast" data-msg="예전 화면으로 전환 (이번 주만 남겨 둠)"',"dim")]:[]),mi("log-out","로그아웃","",'data-act="toast" data-msg="로그아웃"',"dim")]);
+  h+=`<p class="hint" style="margin-bottom:8px">${ic("info")}보이는 메뉴는 지금 앱의 권한·지점 설정 그대로. 권한이 없으면 사라지기만 하고 자리는 바뀌지 않음.</p>`;
+  return h}
+function vSettle(){return `<div class="card pad"><div class="kv"><small>${S.r==="vendor"?pr().partner:"판매대행 사업장"} 정산</small></div><div class="big n">2<i>주차 미송금</i></div></div>
+ <div class="ml">${[["10월 4주차","10/19–10/25","미송금","w"],["10월 3주차","10/12–10/18","미송금","w"],["10월 2주차","10/05–10/11","송금완료","o"],["10월 1주차","09/28–10/04","송금완료","o"]].map(w=>`<button class="mi" data-act="toast" data-msg="정산 상세 (지금 화면 그대로)"><span class="ico">${ic("receipt")}</span><span><b style="display:block;font-size:15px">${w[0]}</b><small style="font-size:12.5px;color:var(--ink-3);font-weight:550" class="n">${w[1]}</small></span><span class="r"><span class="pill ${w[3]==="w"?"need":"insp"}">${w[2]}</span>${ic("chevron-right")}</span></button>`).join("")}</div>`}
+
+/* ─────────── 플러스 ─────────── */
+function vPlus(){const p=pr();const vend=S.r==="vendor";
+  let h=`<div class="hero"><span class="k">${ic("zap")}플러스</span><b>운영 자동화를 골라 쓰세요</b><p>${vend||S.p!=="pension"?"필요한 기능만 신청하면 담당자가 연락해 조건을 안내해요. 신청만으로 바뀌는 건 없어요.":`${p.branch}은 5개 중 ${PLUS.filter(x=>["on","trial"].includes(plusState(x.k))).length}개를 쓰고 있어요.`}</p></div>`;
+  h+=PLUS.map(x=>{const st=plusState(x.k);return `<button class="pcd" data-plus="${x.k}"><span class="pic">${ic(x.ic)}</span><span class="t"><small>${x.old}</small><b>${x.nm}</b><p>${x.one}</p><span class="stc ${st}">${STL[st]}</span></span>${ic("chevron-right")}</button>`}).join("");
+  h+=`<p class="hint" style="margin-bottom:10px">${ic("info")}요금·조건은 사업장마다 달라 신청 후 안내해요.</p>`;return h}
+function vPlusAdm(){const p=pr();const D={on:"●",trial:"시",req:"신",off:"·"};
+  const mat=S.p==="pension"?[["양양",["on","trial","on","on","on"]],["가평",["off","off","off","off","req"]],["청평",["off","off","off","off","off"]],["경주",["req","off","off","off","off"]],["영흥도",["off","trial","off","off","off"]],["통영",["req","trial","off","off","off"]]]:p.branches.map(b=>[b[0],["off","off","off","off","off"]]);
+  let h=`<div class="sec" style="margin-top:6px"><b>사업장별 사용 현황</b></div><div class="ml" style="padding-bottom:4px"><table class="mxt"><tr><th>사업장</th>${PLUS.map(x=>`<th>${x.nm.replace("채널 ","").replace("리뷰 ","").replace("마케팅 ","").replace("스마트 ","")}</th>`).join("")}</tr>${mat.map(([b,v])=>`<tr><td>${b}</td>${v.map(x=>`<td><span class="dt ${x}">${D[x]}</span></td>`).join("")}</tr>`).join("")}</table></div>
+   <p class="hint">${ic("info")}● 사용 중 · 시 시험 중 · 신 신청함. 상태를 바꿔도 실제 기능은 기존 설정에서 따로 켭니다.</p>
+   <div class="sec"><b>새 신청</b> 2</div><div class="ml">`;
+  const REQ=[[S.p==="pension"?"경주":p.branches[1][0],"sync","업주","10/26 16:40","야놀자·여기어때 사용","new"],[S.p==="pension"?"통영":p.branches[0][0],"sync","매니저","10/26 14:20","주말에 예약이 겹친 적이 있어요","called"]];
+  h+=REQ.map(([b,k,by,at,memo,s],i)=>{const x=PLUS.find(y=>y.k===k);return `<div class="rq2"><div class="top">${ic(x.ic)}${b} · ${x.nm}<small class="n">${at}</small></div><p>${by} · "${memo}" · 업무관리에 할 일 자동 생성됨</p><select aria-label="상태">${[["new","새 신청"],["called","연락함"],["trial","시험 중"],["done","사용 시작"],["hold","보류"]].map(([v,l])=>`<option ${v===s?"selected":""}>${l}</option>`).join("")}</select></div>`}).join("")+`</div>`;
+  return h}
+
+/* ─────────── 스태프 링크 ─────────── */
+function vStaffClean(){const t=T[S.lang],C=CLEAN[S.p];const n=C.filter(c=>c[1]!=="need").length;
+  return `<div class="card pad"><div class="kv"><small>${t.prog}</small></div><div class="big n">${n}<i>/ ${C.length}</i></div><div class="trk"><i style="width:${n/C.length*100}%;background:var(--ok)"></i></div></div>
+  <div class="sec"><b>${t.tap}</b></div><div class="ml">${C.map((c,i)=>`<button class="lr" data-cl="${i}"><span class="u2 n">${c[0]}</span><span class="m2"><small><span class="team">${t.team} ${c[2]}</span></small></span><span class="pill ${c[1]}">${t[c[1]]}</span></button>`).join("")}</div>
+  <p class="note">${ic("lock")}${t.note}</p>`}
+function vStaffAddon(){const t=T[S.lang],R=rows();const list=R.map((r,i)=>[r,i]).filter(([r])=>r.ad&&r.ad!=="none");
+  return `<div class="ml" style="margin-top:4px">${list.map(([r,i])=>`<div class="lr"><span class="u2 n">${r.u}</span><span class="m2"><b class="n">${r.ad==="tbd"?t.tbd:r.ad.t}</b><small>${r.ad==="tbd"?"":r.ad.pl?(r.ad.pl==="실내"?t.in:t.out)+" · "+(S.lang==="ko"?r.ad.s+t.seat:t.seat+r.ad.s):r.ad.q}</small></span>${r.ad==="tbd"?"":`<button class="rdy" data-ready="${i}" aria-pressed="${!!r.ad.r}">${ic(r.ad.r?"check":"circle-dashed")}${r.ad.r?t.ready:t.not}</button>`}</div>`).join("")}</div><p class="note">${ic("lock")}${t.note}</p>`}
+
+/* ─────────── 시트 ─────────── */
+let SH=null;
+function openSheet(h){$("#sheet").innerHTML=`<div class="sh-g"></div>`+h;$("#scrim").classList.add("on");$("#sheet").classList.add("on")}
+function closeSheet(){$("#scrim").classList.remove("on");$("#sheet").classList.remove("on");SH=null}
+function extDetail(r){const p=pr();
+  if(p.ext.k==="pet")return r.ext.map(d=>`${d[0]} · ${d[1]} · ${d[2]}${d[3]?` <span style="color:var(--warn-ink);font-weight:750">무게 추가</span>`:""}`).join("<br>");
+  if(p.ext.k==="nat")return `${NAT[r.ext]} (${r.ext})`;
+  if(p.ext.k==="bf")return r.ext?`${r.ext}인 포함 · 07:00–10:00`:"불포함";
+  if(p.ext.k==="car")return `${r.ext}대`;}
+function adText(r){const p=pr(),a=r.ad;if(!a)return p.addon.kind==="pick"?"미배정":"없음";if(a==="none")return "미이용";if(a==="tbd")return "시간 미정";
+  if(a.l)return a.l;if(a.c)return `${a.c}대`;return `${a.t} · ${a.pl?a.pl+" "+a.s+"번":a.q}${a.r?" · 준비완료":""}`}
+function detail(i){SH={t:"det",i};const r=rows()[i],p=pr();const [cn,cc]=CH[r.ch];
+  openSheet(`<div class="sh-h"><h3><small><span class="chn"><i style="background:${cc}"></i>${cn}</span> · 예약 ${r.bk}</small>${r.u} · ${r.nm}</h3><span class="sp"></span><button class="call" aria-label="전화" data-act="toast" data-msg="${r.tel}로 전화">${ic("phone")}</button><button class="x" data-act="close" aria-label="닫기">${ic("x")}</button></div>
+  <div class="sh-b">
+   ${r.done?`<div class="box ok" style="margin:0 0 10px">${ic("circle-check")}입실 완료 · ${r.at}</div>`:""}
+   <div class="tg">
+    <div class="tile"><small>숙박</small><b class="n">${r.ci}</b><em>${r.n}박${r.stay?` · ${r.stay}일째`:""}</em></div>
+    <div class="tile"><small>도착</small><b class="n">${r.eta||"미정"}</b><em>${r.done?"입실함":"입실 전"}</em></div>
+    <div class="tile ppx"><div><small>인원</small><em>기본 ${r.base}명</em></div><input class="n" type="number" inputmode="numeric" value="${r.pp}" data-pp="${i}" aria-label="인원"></div>
+    <div class="tile"><small>${p.ext.l}</small><b>${extDetail(r)}</b></div>
+    <div class="tile"><small>결제</small><b class="n">${won(r.paid)}원</b><em>${cn}</em></div>
+    <div class="tile"><small>${p.addon.l}</small><b class="n">${adText(r)}</b></div>
+   </div>
+   ${r.due&&!r.done?`<div class="box due">${ic("banknote")}<div style="flex:1"><small style="font-weight:700">받을 돈</small><span class="amt n">+${won(r.due)}원</span><small>${r.dt}</small></div><button class="btn" data-field="${i}">현장기록 받기</button></div>`:""}
+   ${r.rq?`<div class="box req">${ic("circle-alert")}<span>${r.rq}</span></div>`:""}
+   <div class="lab">관리자 메모</div><textarea class="ta" placeholder="다음 근무자에게 남길 메모">${r.memo||""}</textarea>
+   <div class="acts"><button class="btn line sm" data-field="${i}">${ic("receipt")}현장기록</button><button class="btn line sm" data-ad="${i}">${ic(p.addon.kind==="slot"?p.addon.icon:p.addon.kind==="pick"?"key-round":"car")}${p.addon.l}</button></div>
+  </div>
+  <div class="sh-f">${r.done?`<button class="btn line" data-chk="${i}">입실 취소</button>`:`<button class="btn pri" data-chk="${i}">${ic("check")}입실 체크</button>`}</div>`)}
+function field(i){SH={t:"field",i};const r=rows()[i],p=pr();const di=r.di||[0,0,0,0];
+  openSheet(`<div class="sh-h"><h3><small>${r.u} · ${r.nm}</small>현장기록</h3><span class="sp"></span><button class="x" data-act="close" aria-label="닫기">${ic("x")}</button></div>
+  <div class="sh-b">${p.field.map(([l,v],k)=>`<div class="frow"><div><b>${l}</b><small class="n">${won(v)}원</small></div><div class="stp" data-v="${v}"><button data-st="-1" aria-label="${l} 빼기">${ic("minus")}</button><output class="n">${di[k]||0}</output><button data-st="1" aria-label="${l} 더하기">${ic("plus")}</button></div></div>`).join("")}
+   <div class="lab">결제 수단</div><div class="seg" role="group"><button aria-pressed="false" data-pm>현금</button><button aria-pressed="true" data-pm>계좌</button><button aria-pressed="false" data-pm>카드</button></div>
+   <div class="tot"><span>합계</span><b class="n" id="ftot">0원</b></div></div>
+  <div class="sh-f"><button class="btn line" data-act="close">취소</button><button class="btn pri" data-act="fsave" style="flex:2">기록하기</button></div>`);ftot()}
+function ftot(){let s=0;document.querySelectorAll("#sheet .stp").forEach(x=>s+=+x.dataset.v*+x.querySelector("output").value);const t=$("#ftot");if(t)t.textContent=won(s)+"원"}
+function addonSheet(i){SH={t:"ad",i};const r=rows()[i],p=pr(),a=(r.ad&&typeof r.ad==="object")?r.ad:{};
+  let b="";
+  if(p.addon.kind==="slot"){const ts=p.addon.k==="bbq"?["17:00","17:30","18:00","18:30","19:00","19:30","20:00","미정"]:["16:00","17:00","18:00","18:30","19:00","20:00","미정"];
+    b+=`<div class="lab" style="margin-top:4px">시간</div><div class="chs" data-g="t">${ts.map(t=>`<button class="co n" aria-pressed="${(a.t||"미정")===t}">${t}</button>`).join("")}</div>`;
+    if(p.addon.k==="bbq")b+=`<div class="lab">장소</div><div class="seg" data-g2="pl"><button aria-pressed="${a.pl!=="실내"}">야외</button><button aria-pressed="${a.pl==="실내"}">실내</button></div><div class="lab">자리</div><div class="chs" data-g="s">${["1","2","3","4","5","6","미정"].map(s=>`<button class="co n" aria-pressed="${(a.s||"미정")===s}" ${s==="4"?"disabled":""}>${s==="미정"?s:s+"번"}</button>`).join("")}</div>`;
+    else b+=`<div class="lab">수량</div><div class="chs" data-g="q">${["1묶음","2묶음","3묶음"].map(s=>`<button class="co" aria-pressed="${(a.q||"1묶음")===s}">${s}</button>`).join("")}</div>`;
+    b+=`<div class="swr">준비완료<button class="swb" data-act="sw" aria-label="준비완료"><span class="sw" aria-checked="${!!a.r}"></span></button></div>`}
+  if(p.addon.kind==="pick")b+=`<div class="lab" style="margin-top:4px">빈 락커</div><div class="chs" data-g="l">${["L01","L02","L03","L04","L05","L06","L07","L08","L09","L10","L11","L12","L13","L14","L15"].map(l=>{const used=rows().some(x=>x.ad&&x.ad.l===l&&x!==r);return `<button class="co n" aria-pressed="${a.l===l}" ${used?"disabled":""}>${l}</button>`}).join("")}</div>`;
+  if(p.addon.kind==="count")b+=`<div class="frow"><div><b>주차 차량</b><small>1대 무료 · 추가 1대 15,000원</small></div><div class="stp" data-v="0"><button data-st="-1" aria-label="빼기">${ic("minus")}</button><output class="n">${a.c||0}</output><button data-st="1" aria-label="더하기">${ic("plus")}</button></div></div>`;
+  openSheet(`<div class="sh-h"><h3><small>${r.u} · ${r.nm}</small>${p.addon.tab||p.addon.l}</h3><span class="sp"></span><button class="x" data-act="close" aria-label="닫기">${ic("x")}</button></div><div class="sh-b">${b}</div>
+  <div class="sh-f"><button class="btn line" data-act="adnone">${p.addon.kind==="pick"?"배정 안 함":"없음"}</button><button class="btn pri" data-act="adsave" style="flex:2">저장</button></div>`)}
+function branchSheet(){const p=pr();openSheet(`<div class="sh-h"><h3><small>${p.org} · ${p.hq}</small>사업장 전환</h3><span class="sp"></span><button class="x" data-act="close" aria-label="닫기">${ic("x")}</button></div><div class="sh-b"><div class="ml" style="margin:0">${p.branches.map((b,i)=>`<button class="mi" data-act="toast" data-msg="${b[0]}(으)로 전환 · 날짜·탭 그대로"><span class="ico" style="background:${i===0?"var(--brand-soft)":"var(--surface-3)"};color:${i===0?"var(--brand-ink)":"var(--ink-2)"}">${ic("building-2")}</span>${b[0]}${b[3]?`<span style="width:8px;height:8px;border-radius:50%;background:var(--bad)" title="미해결 인수인계"></span>`:""}<span class="r n">입실 ${b[1]} · <b style="color:var(--warn-ink)">대기 ${b[2]}</b>${i===0?" · 지금":""}${ic("chevron-right")}</span></button>`).join("")}</div><p class="hint">${ic("info")}빨간 점 = 미해결 인수인계</p></div><div style="height:24px"></div>`)}
+function handoverSheet(){openSheet(`<div class="sh-h"><h3><small>미해결 2</small>인수인계</h3><span class="sp"></span><button class="x" data-act="close" aria-label="닫기">${ic("x")}</button></div><div class="sh-b"><div class="ml" style="margin:0">${[["309 테이블 파손 — 손님 통화 안 됨, 1층 테이블로 교체","애니 · 어제 14:41"],["608 변기 수압 확인 필요","준 · 10/24 10:58"]].map(h=>`<div class="lr" style="grid-template-columns:minmax(0,1fr) auto"><span class="m2"><b style="white-space:normal">${h[0]}</b><small>${h[1]}</small></span><button class="rdy" data-act="toast" data-msg="완료 처리">${ic("check")}완료</button></div>`).join("")}</div><div class="lab">남기기</div><textarea class="ta" placeholder="다음 근무자에게 전달할 내용"></textarea></div><div class="sh-f"><button class="btn pri" data-act="toast" data-msg="인수인계 남김">남기기</button></div>`)}
+function requestSheet(){const p=pr();openSheet(`<div class="sh-h"><h3><small>전달 전 1</small>${p.req.l}</h3><span class="sp"></span><button class="x" data-act="close" aria-label="닫기">${ic("x")}</button></div><div class="sh-b"><div class="ml" style="margin:0"><div class="lr" style="grid-template-columns:62px minmax(0,1fr) auto"><span class="u2 n">${rows()[1].u}</span><span class="m2"><b>${p.req.l} 1</b><small>오늘 14:20 요청</small></span><button class="rdy" data-act="toast" data-msg="전달 완료">${ic("check")}전달</button></div></div></div><div class="sh-f"><button class="btn pri" data-act="toast" data-msg="${p.req.l} 입력 (지금 기능)">${ic("plus")}${p.req.l} 추가</button></div>`)}
+function searchSheet(){openSheet(`<div class="sh-h"><h3>예약 검색</h3><span class="sp"></span><button class="x" data-act="close" aria-label="닫기">${ic("x")}</button></div><div class="sh-b"><input class="in" placeholder="이름 · 전화 뒤 4자리 · ${pr().unit} · 예약번호" autofocus><p class="hint" style="margin:10px 2px">${ic("info")}결과를 누르면 그 날짜 체크인으로 이동 (지금 검색 그대로)</p></div><div style="height:30px"></div>`)}
+function allCols(){const p=pr(),R=rows();openSheet(`<div class="sh-h"><h3><small>지금 표의 모든 칸 · 옆으로 밀기</small>모든 칸 보기</h3><span class="sp"></span><button class="x" data-act="close" aria-label="닫기">${ic("x")}</button></div><div class="sh-b"><div class="atw"><table class="at"><thead><tr><th>${p.unit}</th><th>예약자</th><th>연락처</th><th>채널</th><th>숙박</th><th>도착</th><th>예약일시</th><th>인원</th><th>${p.ext.l}</th><th>${p.addon.l}</th><th>받을 돈</th><th>결제액</th><th>요청·메모</th></tr></thead><tbody>${R.map(r=>`<tr><td>${r.u}</td><td>${r.nm}</td><td class="n">${r.tel}</td><td>${CH[r.ch][0]}</td><td class="n">${r.ci} (${r.n}박)</td><td class="n">${r.eta||"미정"}</td><td class="n">${r.bk}</td><td class="n">${r.pp}</td><td>${extDetail(r)}</td><td>${adText(r)}</td><td class="n">${r.due?"+"+won(r.due):"–"}</td><td class="n">${won(r.paid)}</td><td>${r.rq||""}${r.memo?" · "+r.memo:""}</td></tr>`).join("")}</tbody></table></div></div><div style="height:30px"></div>`)}
+function plusSheet(k){SH={t:"plus",k};const x=PLUS.find(y=>y.k===k),st=plusState(k),can=st==="can"&&S.r!=="hq"&&S.r!=="staff";
+  openSheet(`<div class="sh-h"><span class="pic" style="width:42px;height:42px;border-radius:13px;background:var(--brand-soft);color:var(--brand-ink);display:grid;place-items:center">${ic(x.ic)}</span><h3><small>${x.old}</small>${x.nm}</h3><span class="sp"></span><button class="x" data-act="close" aria-label="닫기">${ic("x")}</button></div>
+  <div class="sh-b"><p style="font-size:15px;line-height:1.55">${x.one}</p><ul style="padding-left:18px;font-size:14px;color:var(--ink-2);margin:8px 0;line-height:1.7">${x.pts.map(t=>`<li>${t}</li>`).join("")}</ul>
+   <div class="box" style="background:var(--surface-2);border:1px solid var(--line-2);color:var(--ink-2);align-items:flex-start">${ic("clipboard-list")}<span><b style="color:var(--ink)">시작할 때 필요한 것</b><br>${x.need}</span></div>
+   ${can?`${x.ch?`<div class="lab">쓰고 있는 채널</div><div class="chs" data-multi>${["야놀자","여기어때","네이버","아고다","에어비앤비","부킹닷컴"].map(c=>`<button class="co" aria-pressed="false">${c}</button>`).join("")}</div>`:""}
+   <div class="lab">연락받을 분</div><input class="in" value="${S.r==="vendor"?pr().partner+" 업주":pr().branch+" 매니저"}" aria-label="이름"><div class="lab">연락처</div><input class="in n" value="010-0000-0000" inputmode="tel" aria-label="연락처">
+   <div class="lab">하고 싶은 말 (선택)</div><textarea class="ta" placeholder="예) 주말에 채널끼리 예약이 겹친 적이 있어요"></textarea>
+   <label class="agree"><input type="checkbox" id="agr">담당자가 연락해 조건을 안내하는 데 동의해요. 비밀번호는 여기에 적지 않아요.</label>`:`<div class="box ${st==="req"?"due":"ok"}">${ic(st==="req"?"clock":"circle-check")}<span>${st==="req"?"신청했어요. 1~2일 안에 연락드려요.":S.r==="staff"?"신청은 매니저·업주가 할 수 있어요.":STL[st]}</span></div>`}</div>
+  <div class="sh-f">${can?`<button class="btn line" data-act="close">닫기</button><button class="btn pri" data-act="plusgo" id="plusgo" style="flex:2" disabled>신청하기</button>`:`<button class="btn line" data-act="close">닫기</button>`}</div>`)}
+
+/* ─────────── 토스트 ─────────── */
+let undoFn=null,tT=null;
+function toast(m,u){$("#tt").textContent=m;undoFn=u||null;$("#tu").hidden=!u;$("#toast").classList.add("on");clearTimeout(tT);tT=setTimeout(()=>$("#toast").classList.remove("on"),u?4000:1800)}
+$("#tu").onclick=()=>{if(undoFn){undoFn();undoFn=null;render()}$("#toast").classList.remove("on")};
+
+/* ─────────── 이벤트 ─────────── */
+const ph=$("#ph");
+ph.addEventListener("click",e=>{const g=s=>e.target.closest(s);let el;
+  if(el=g("[data-tab]")){S.tab=el.dataset.tab;S.sub=null;S.f="all";render();$("#main").scrollTop=0;return}
+  if(el=g("[data-sub]")){S.sub=el.dataset.sub;render();$("#main").scrollTop=0;return}
+  if(el=g("[data-day]")){const v=+el.dataset.day;S.day=v===0?0:S.day+v;render();return}
+  if(el=g("[data-f]")){S.f=el.dataset.f;render();return}
+  if(el=g("[data-rv]")){S.rv=el.dataset.rv;render();return}
+  if(el=g("[data-cv]")){S.cv=el.dataset.cv;render();return}
+  if(el=g("[data-af]")){S.af=el.dataset.af;render();return}
+  if(el=g("[data-lang]")){S.lang=el.dataset.lang;render();return}
+  if(el=g("[data-chk]")){const i=+el.dataset.chk,r=rows()[i];const was=r.done;r.done=was?0:1;if(!was)r.at="16:"+String(10+i).padStart(2,"0");closeSheet();render();
+    toast(`${r.u} ${was?"입실 취소":"입실 완료"}`,()=>{r.done=was});return}
+  if(el=g("[data-det]")){detail(+el.dataset.det);return}
+  if(el=g("[data-field]")){field(+el.dataset.field);return}
+  if(el=g("[data-ad]")){addonSheet(+el.dataset.ad);return}
+  if(el=g("[data-ready]")){const r=rows()[+el.dataset.ready];r.ad.r=r.ad.r?0:1;render();toast(`${r.u} ${r.ad.r?"준비완료":"준비 전으로"}`);return}
+  if(el=g("[data-cl]")){const c=CLEAN[S.p][+el.dataset.cl];const nx={need:"done",done:"insp",insp:"need"}[c[1]];const prev=c[1];c[1]=nx;render();toast(`${c[0]} ${{need:"청소 필요",done:"청소 완료",insp:"검수 완료"}[nx]}`,()=>{c[1]=prev});return}
+  if(el=g("[data-plus]")){plusSheet(el.dataset.plus);return}
+  if(el=g("[data-st]")){const o=el.parentNode.querySelector("output");o.value=Math.max(0,+o.value+ +el.dataset.st);ftot();return}
+  if(el=g("[data-pm]")||g(".sh-b .seg button")||g("#main .seg button")){el.parentNode.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",b===el));if(!g("#main"))return}
+  if(el=g("[data-multi] .co")){el.setAttribute("aria-pressed",el.getAttribute("aria-pressed")!=="true");return}
+  if(el=g(".chs .co")){el.parentNode.querySelectorAll(".co").forEach(b=>b.setAttribute("aria-pressed",b===el));return}
+  if(el=g("[data-act]")){const a=el.dataset.act;
+    if(a==="close"){closeSheet();return}
+    if(a==="back"){S.sub=null;render();return}
+    if(a==="branch"){branchSheet();return}
+    if(a==="handover"){handoverSheet();return}
+    if(a==="request"){requestSheet();return}
+    if(a==="search"){searchSheet();return}
+    if(a==="allcols"){allCols();return}
+    if(a==="doneT"){S.doneOpen=!S.doneOpen;render();return}
+    if(a==="cal"){toast("날짜 고르기 (달력)");return}
+    if(a==="sw"){const s=el.querySelector(".sw");s.setAttribute("aria-checked",s.getAttribute("aria-checked")!=="true");return}
+    if(a==="fsave"){const r=rows()[SH.i];closeSheet();const prev=r.due;r.due=0;render();toast(`${r.u} 현장기록 저장 · ${$("#ftot")?.textContent||""}`,()=>{r.due=prev});return}
+    if(a==="adsave"||a==="adnone"){const r=rows()[SH.i],p=pr();const prev=JSON.stringify(r.ad);
+      if(a==="adnone")r.ad=p.addon.kind==="slot"?"none":null;
+      else if(p.addon.kind==="slot"){const t=document.querySelector('#sheet [data-g="t"] [aria-pressed="true"]')?.textContent||"미정";const rd=document.querySelector("#sheet .sw")?.getAttribute("aria-checked")==="true";
+        if(p.addon.k==="bbq"){const pl=document.querySelector('#sheet [data-g2="pl"] [aria-pressed="true"]')?.textContent||"야외";const s=(document.querySelector('#sheet [data-g="s"] [aria-pressed="true"]')?.textContent||"미정").replace("번","");r.ad=t==="미정"?"tbd":{t,pl,s,r:rd?1:0}}
+        else{const q=document.querySelector('#sheet [data-g="q"] [aria-pressed="true"]')?.textContent||"1묶음";r.ad=t==="미정"?"tbd":{t,q,r:rd?1:0}}}
+      else if(p.addon.kind==="pick"){const l=document.querySelector('#sheet [data-g="l"] [aria-pressed="true"]')?.textContent;r.ad=l?{l}:null}
+      else{const c=+document.querySelector("#sheet output").value;r.ad=c?{c}:null}
+      closeSheet();render();toast(`${r.u} ${p.addon.l} 저장`,()=>{r.ad=JSON.parse(prev)});return}
+    if(a==="plusgo"){S.plusState[S.p+":"+(S.r==="vendor"?"partner":"main")+":"+SH.k]="req";const x=PLUS.find(y=>y.k===SH.k);closeSheet();render();toast(`${x.nm} 신청했어요 · 담당자에게 알림이 갔어요`);return}
+    if(a==="toast"){closeSheet();toast(el.dataset.msg);return}
+  }
+});
+ph.addEventListener("change",e=>{const t=e.target;
+  if(t.dataset.pp!==undefined){const i=+t.dataset.pp,r=rows()[i];const prev=r.pp;const v=Math.max(1,parseInt(t.value)||r.pp);r.pp=v;
+    document.querySelectorAll(`[data-pp="${i}"]`).forEach(x=>{x.value=v;x.classList.toggle("over",v>r.base)});
+    if(v!==prev)toast(`${r.u} 인원 ${v}명 저장`,()=>{r.pp=prev;render()});}
+  if(t.id==="agr"){$("#plusgo").disabled=!t.checked}});
+ph.addEventListener("focusin",e=>{if(e.target.dataset&&e.target.dataset.pp!==undefined)e.target.select()});
+$("#scrim").onclick=closeSheet;
+
+/* 누른 횟수 */
+let taps=0;
+ph.addEventListener("click",e=>{const t=e.target.closest("button,input,label,textarea,select");if(!t||t.id==="tu")return;taps++;$("#tapN").textContent=taps;$("#tapL").textContent=`${taps}번째: ${(t.getAttribute("aria-label")||t.textContent||t.placeholder||"").trim().replace(/\s+/g," ").slice(0,22)}`},true);
+$("#tapZ").onclick=()=>{taps=0;$("#tapN").textContent=0;$("#tapL").textContent=""};
+
+/* 설명 패널 */
+function panel(){if(document.body.classList.contains("bare"))return;
+  $("#cP").innerHTML=Object.entries(P).map(([k,v])=>`<button data-cp="${k}" aria-pressed="${S.p===k}">${v.label}</button>`).join("");
+  $("#cA").innerHTML=ACC.map(([k,l,c])=>`<button data-ca="${k}" aria-pressed="${accent()===k}"><i style="background:${c}"></i>${l}</button>`).join("");
+  $("#cR").innerHTML=ROLES.map(([k,l])=>`<button data-cr="${k}" aria-pressed="${S.r===k}">${l}</button>`).join("");
+  $("#cM").innerHTML=[["app","앱"],["staff","스태프 링크 (한/EN)"]].map(([k,l])=>`<button data-cm="${k}" aria-pressed="${S.m===k}">${l}</button>`).join("")}
+$("#pn").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
+  if(b.dataset.cp){S.p=b.dataset.cp;S.a="";S.f="all";S.sub=null;closeSheet()}
+  if(b.dataset.ca)S.a=b.dataset.ca;
+  if(b.dataset.cr){S.r=b.dataset.cr;S.sub=null;S.tab=S.r==="vendor"?"more":"checkin";closeSheet()}
+  if(b.dataset.cm){S.m=b.dataset.cm;S.tab=S.m==="staff"?"clean":"checkin";S.sub=null;closeSheet()}
+  render()});
+render();
+if(Q.get("sub")){S.sub=Q.get("sub");render()}
+if(Q.get("open")){document.getElementById("sheet").style.transition="none";document.getElementById("scrim").style.transition="none";const o=Q.get("open");
+  if(o==="det")detail(1);if(o==="field")field(1);if(o==="bbq")addonSheet(3);
+  setTimeout(()=>{document.getElementById("sheet").style.transition="";document.getElementById("scrim").style.transition=""},50)}
+if(Q.get("qa")!==null){document.body.classList.add("qa");const qn=Q.get("qa");
+  const bar=document.getElementById("qab");bar.hidden=false;bar.innerHTML=`<b><small>연습 화면 · 가짜 데이터라 마음껏 눌러도 돼요</small>새 체크인 화면 미리보기</b><a href="index.html${qn&&qn!=="0"?"#s"+qn:""}">안내로</a>`;}
+</script>
+</body>
+</html>
